@@ -1,0 +1,67 @@
+name: docs-structure-check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate required structure
+        run: |
+          set -euo pipefail
+          required=(
+            "apps/web"
+            "apps/api"
+            "packages"
+            "docs"
+            "infra"
+            "docs/produto"
+            "docs/api"
+            "docs/dados"
+            "docs/infra"
+            "docs/roadmap"
+          )
+
+          for path in "${required[@]}"; do
+            if [ ! -e "$path" ]; then
+              echo "Missing path: $path"
+              exit 1
+            fi
+          done
+
+      - name: Validate markdown links
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          root = Path('.')
+          md_files = list(root.rglob('*.md'))
+          link_re = re.compile(r'\[[^\]]+\]\(([^)]+)\)')
+          bad = []
+
+          for md in md_files:
+            text = md.read_text(encoding='utf-8')
+            for target in link_re.findall(text):
+              if target.startswith(('http://', 'https://', '#', 'mailto:')):
+                continue
+              target = target.split('#')[0]
+              if not target:
+                continue
+              resolved = (md.parent / target).resolve()
+              if not resolved.exists():
+                bad.append((md.as_posix(), target))
+
+          if bad:
+            for source, target in bad:
+              print(f'Broken link in {source}: {target}')
+            raise SystemExit(1)
+
+          print('Markdown links are valid.')
+          PY
