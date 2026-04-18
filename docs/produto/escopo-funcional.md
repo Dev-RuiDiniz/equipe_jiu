@@ -8,6 +8,16 @@ Baseado no documento tecnico do projeto BJJ (versao 1.0), este arquivo consolida
 - Area restrita: 5 paginas (acesso professor/admin com JWT)
 - Objetivo: captar novos alunos, apresentar o time e permitir gestao academica basica
 
+## Status da Entrega Visual (fase atual)
+- Frontend das 5 paginas publicas implementado com foco exclusivamente visual.
+- Rotas publicas ativas: `/`, `/sobre`, `/modalidades`, `/galeria`, `/contato`.
+- Rota administrativa inicial: `/adm` (placeholder visual para proxima fase).
+- Arquitetura de frontend separada por dominio:
+  - `src/publicas` para componentes e paginas abertas.
+  - `src/adm` para placeholders da area restrita.
+- Conteudo e dados nesta etapa sao estaticos (mockados), sem persistencia.
+- Sem autenticacao funcional e sem integracao com API nesta entrega.
+
 ## Area Publica (sem login)
 
 ### 1. Home
