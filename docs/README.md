@@ -7,4 +7,7 @@ Este diretorio concentra os documentos funcionais e tecnicos do projeto.
 - `dados/`: modelo de banco e relacionamentos.
 - `infra/`: deploy, Docker, Nginx e operacao.
 - `roadmap/`: fases de entrega e criterios.
-- `arquitetura/`: visao geral da solucao.
+- `arquitetura/`: visao geral da solucao e convencoes tecnicas.
+
+## Guias de arquitetura
+- Frontend web: [arquitetura/frontend-web.md](arquitetura/frontend-web.md)
