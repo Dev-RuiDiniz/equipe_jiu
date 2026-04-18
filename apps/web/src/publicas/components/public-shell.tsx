@@ -17,15 +17,20 @@ const links = [
 
 export function PublicShell({ title, eyebrow, children }: PublicShellProps) {
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
-      <header className="border-b border-slate-800">
-        <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-5">
-          <strong className="text-sm uppercase tracking-[0.2em] text-amber-400">
-            Equipe Jiu
-          </strong>
-          <nav className="flex flex-wrap items-center gap-4 text-sm text-slate-300">
+    <div className="site-grid min-h-screen">
+      <header className="sticky top-0 z-30 border-b border-white/10 bg-[#090d17]/85 backdrop-blur">
+        <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-6 py-4">
+          <div>
+            <p className="display-font text-4xl leading-none text-white">Equipe Jiu</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-orange-300">Performance Team</p>
+          </div>
+          <nav className="flex flex-wrap items-center justify-end gap-2 text-sm font-semibold text-slate-200">
             {links.map((link) => (
-              <Link key={link.href} href={link.href} className="hover:text-white">
+              <Link
+                key={link.href}
+                href={link.href}
+                className="rounded-full border border-transparent px-3 py-1.5 transition hover:border-orange-300/50 hover:bg-orange-300/10"
+              >
                 {link.label}
               </Link>
             ))}
@@ -33,16 +38,27 @@ export function PublicShell({ title, eyebrow, children }: PublicShellProps) {
         </div>
       </header>
 
-      <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-10">
-        {eyebrow ? (
-          <p className="text-xs uppercase tracking-[0.18em] text-amber-300">{eyebrow}</p>
-        ) : null}
-        <h1 className="text-4xl font-semibold">{title}</h1>
+      <main className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-10 md:py-14">
+        <section className="section-shell p-6 md:p-8">
+          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div className="space-y-3">
+              <span className="signal">Sessao Publica</span>
+              {eyebrow ? (
+                <p className="text-xs uppercase tracking-[0.2em] text-amber-200/90">{eyebrow}</p>
+              ) : null}
+              <h1 className="display-font text-5xl leading-none text-white md:text-7xl">{title}</h1>
+            </div>
+            <p className="max-w-md text-sm text-slate-300 md:text-base">
+              Base visual em construcao com foco em contraste, hierarquia tipografica e leitura rapida.
+            </p>
+          </div>
+        </section>
+
         {children}
       </main>
 
-      <footer className="border-t border-slate-800 py-6 text-center text-sm text-slate-400">
-        Placeholder estrutural de navegacao publica.
+      <footer className="border-t border-white/10 py-6 text-center text-sm text-slate-400">
+        Equipe Jiu • Visual v1 (somente frontend)
       </footer>
     </div>
   );
