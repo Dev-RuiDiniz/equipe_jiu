@@ -8,6 +8,7 @@ import { ContatosModule } from './contatos/contatos.module';
 import { AlunosModule } from './alunos/alunos.module';
 import { AulasModule } from './aulas/aulas.module';
 import { PresencasModule } from './presencas/presencas.module';
+import { GraduacoesModule } from './graduacoes/graduacoes.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { PresencasModule } from './presencas/presencas.module';
     AlunosModule,
     AulasModule,
     PresencasModule,
+    GraduacoesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
