@@ -9,6 +9,7 @@ import { AlunosModule } from './alunos/alunos.module';
 import { AulasModule } from './aulas/aulas.module';
 import { PresencasModule } from './presencas/presencas.module';
 import { GraduacoesModule } from './graduacoes/graduacoes.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { GraduacoesModule } from './graduacoes/graduacoes.module';
     AulasModule,
     PresencasModule,
     GraduacoesModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [AppService],
