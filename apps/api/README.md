@@ -1,6 +1,6 @@
 # apps/api
 
-API NestJS responsavel por autenticacao, painel e regras de negocio.
+API NestJS do projeto Equipe Jiu.
 
-## Objetivo nesta fase
-Definir estrutura inicial e documentacao de apoio.
+## Objetivo desta fase
+Estruturar a aplicação backend para receber módulos de autenticação, domínio e persistência.
