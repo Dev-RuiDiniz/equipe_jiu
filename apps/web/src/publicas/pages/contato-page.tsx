@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PublicShell } from "@/publicas/components/public-shell";
+import { ContatoForm } from "@/publicas/components/contato-form";
 
 const mapasrc =
   process.env.NEXT_PUBLIC_GOOGLE_MAPS_EMBED_URL ??
@@ -18,62 +19,7 @@ export function ContatoPage() {
         <article className="section-shell p-6 md:p-8">
           <p className="text-xs uppercase tracking-[0.18em] text-orange-300">Formulario visual</p>
           <h2 className="mt-2 text-3xl font-extrabold text-white">Contato e inscricao</h2>
-
-          <form className="mt-6 grid gap-4" action="#" method="post">
-            <label className="grid gap-2 text-sm font-semibold text-slate-200">
-              Nome
-              <input
-                className="rounded-xl border border-slate-600 bg-[#111a2b] px-3 py-3 text-slate-100 outline-none ring-orange-300/70 transition focus:ring"
-                type="text"
-                name="nome"
-                placeholder="Seu nome completo"
-              />
-            </label>
-
-            <label className="grid gap-2 text-sm font-semibold text-slate-200">
-              E-mail
-              <input
-                className="rounded-xl border border-slate-600 bg-[#111a2b] px-3 py-3 text-slate-100 outline-none ring-orange-300/70 transition focus:ring"
-                type="email"
-                name="email"
-                placeholder="voce@email.com"
-              />
-            </label>
-
-            <label className="grid gap-2 text-sm font-semibold text-slate-200">
-              Modalidade de interesse
-              <select
-                className="rounded-xl border border-slate-600 bg-[#111a2b] px-3 py-3 text-slate-100 outline-none ring-orange-300/70 transition focus:ring"
-                name="interesse"
-                defaultValue=""
-              >
-                <option value="" disabled>
-                  Selecione
-                </option>
-                <option value="adulto">Adulto</option>
-                <option value="kids">Kids</option>
-                <option value="competicao">Competicao</option>
-              </select>
-            </label>
-
-            <label className="grid gap-2 text-sm font-semibold text-slate-200">
-              Mensagem
-              <textarea
-                className="min-h-32 rounded-xl border border-slate-600 bg-[#111a2b] px-3 py-3 text-slate-100 outline-none ring-orange-300/70 transition focus:ring"
-                name="mensagem"
-                placeholder="Conte seu objetivo no jiu-jitsu"
-              />
-            </label>
-
-            <div className="flex flex-wrap gap-3">
-              <button type="submit" className="btn-primary">
-                Enviar mensagem
-              </button>
-              <a href="https://wa.me/5500000000000" target="_blank" rel="noreferrer" className="btn-outline">
-                Falar direto no WhatsApp
-              </a>
-            </div>
-          </form>
+          <ContatoForm />
         </article>
 
         <aside className="space-y-5">
