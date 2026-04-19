@@ -1,5 +1,5 @@
-import { AdmHomePage } from "@/adm/pages/adm-home-page";
+import { redirect } from "next/navigation";
 
 export default function Page() {
-  return <AdmHomePage />;
+  redirect("/adm/dashboard");
 }
