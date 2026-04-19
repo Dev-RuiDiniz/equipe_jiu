@@ -1,0 +1,106 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Papel {
+  admin
+  professor
+}
+
+model Usuario {
+  id          String      @id @default(uuid()) @db.Uuid
+  nome        String      @db.VarChar(100)
+  email       String      @unique @db.VarChar(150)
+  senhaHash   String      @map("senha_hash")
+  papel       Papel
+  ativo       Boolean     @default(true)
+  criadoEm    DateTime    @default(now()) @map("criado_em")
+  ultimoLogin DateTime?   @map("ultimo_login")
+  aulas       Aula[]
+  graduacoes  Graduacao[]
+
+  @@map("usuarios")
+}
+
+model Aluno {
+  id             String      @id @default(uuid()) @db.Uuid
+  nome           String      @db.VarChar(100)
+  cpf            String      @unique @db.VarChar(14)
+  dataNascimento DateTime?   @map("data_nascimento") @db.Date
+  faixa          String      @db.VarChar(30)
+  grau           Int         @db.SmallInt
+  fotoUrl        String?     @map("foto_url")
+  telefone       String?     @db.VarChar(20)
+  ativo          Boolean     @default(true)
+  criadoEm       DateTime    @default(now()) @map("criado_em")
+  presencas      Presenca[]
+  graduacoes     Graduacao[]
+
+  @@map("alunos")
+}
+
+model Aula {
+  id          String     @id @default(uuid()) @db.Uuid
+  titulo      String     @db.VarChar(150)
+  descricao   String?
+  professorId String     @map("professor_id") @db.Uuid
+  modalidade  String     @db.VarChar(50)
+  dataHora    DateTime   @map("data_hora")
+  duracaoMin  Int        @map("duracao_min") @db.SmallInt
+  vagas       Int?       @db.SmallInt
+  cancelada   Boolean    @default(false)
+  criadoEm    DateTime   @default(now()) @map("criado_em")
+  professor   Usuario    @relation(fields: [professorId], references: [id])
+  presencas   Presenca[]
+
+  @@index([professorId, dataHora])
+  @@index([modalidade, dataHora])
+  @@map("aulas")
+}
+
+model Presenca {
+  id           String   @id @default(uuid()) @db.Uuid
+  aulaId       String   @map("aula_id") @db.Uuid
+  alunoId      String   @map("aluno_id") @db.Uuid
+  confirmadoEm DateTime @map("confirmado_em")
+  observacao   String?
+  aula         Aula     @relation(fields: [aulaId], references: [id])
+  aluno        Aluno    @relation(fields: [alunoId], references: [id])
+
+  @@unique([aulaId, alunoId])
+  @@index([alunoId, confirmadoEm])
+  @@map("presencas")
+}
+
+model Graduacao {
+  id            String    @id @default(uuid()) @db.Uuid
+  alunoId       String    @map("aluno_id") @db.Uuid
+  faixa         String    @db.VarChar(30)
+  grau          Int       @db.SmallInt
+  dataGraduacao DateTime  @map("data_graduacao") @db.Date
+  professorId   String    @map("professor_id") @db.Uuid
+  observacao    String?
+  aluno         Aluno     @relation(fields: [alunoId], references: [id])
+  professor     Usuario   @relation(fields: [professorId], references: [id])
+
+  @@index([alunoId, dataGraduacao(sort: Desc)])
+  @@map("graduacoes")
+}
+
+model Contato {
+  id       String   @id @default(uuid()) @db.Uuid
+  nome     String   @db.VarChar(100)
+  email    String   @db.VarChar(150)
+  mensagem String
+  interesse String? @db.VarChar(50)
+  lido     Boolean  @default(false)
+  criadoEm DateTime @default(now()) @map("criado_em")
+
+  @@index([lido, criadoEm(sort: Desc)])
+  @@map("contatos")
+}
