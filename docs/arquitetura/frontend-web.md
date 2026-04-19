@@ -10,11 +10,11 @@ Guia de referencia para evolucao do `apps/web`.
 ## Estrutura de dominio
 - `src/app`: camada de rotas (wrappers curtos por URL)
 - `src/publicas`: paginas abertas e componentes de conteudo institucional
-- `src/adm`: shell e placeholders da area restrita
+- `src/adm`: shell, componentes reutilizaveis e paginas da area restrita
 
 Exemplo de fluxo de roteamento:
 - `src/app/sobre/page.tsx` importa `src/publicas/pages/sobre-page.tsx`
-- `src/app/adm/page.tsx` importa `src/adm/pages/adm-home-page.tsx`
+- `src/app/adm/dashboard/page.tsx` importa `src/adm/pages/adm-dashboard-page.tsx`
 
 ## Convencoes de implementacao
 - Cada rota publica deve manter composicao por secoes reutilizaveis.
@@ -23,6 +23,11 @@ Exemplo de fluxo de roteamento:
 - Componentes de layout compartilhado:
   - `public-shell` para area publica
   - `adm-shell` para area administrativa
+- Componentes administrativos reutilizaveis:
+  - `adm-kpi-card` para indicadores
+  - `adm-table` para listagens
+  - `adm-status-badge` para estado visual
+  - `adm-form-field` para campos de formulario
 
 ## Sistema visual (v1)
 - Tokens de cor, raio e sombra em `src/app/globals.css`.
@@ -45,7 +50,12 @@ Exemplo de fluxo de roteamento:
 - `/contato`
 
 ### Adm
-- `/adm` (placeholder visual)
+- `/adm` (redireciona para `/adm/dashboard`)
+- `/adm/login`
+- `/adm/dashboard`
+- `/adm/aulas`
+- `/adm/presencas`
+- `/adm/alunos`
 
 ## Proximos passos recomendados
 - Integrar conteudo dinamico com API NestJS.
