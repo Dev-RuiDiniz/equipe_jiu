@@ -1,21 +1,21 @@
 # Contratos REST e Autenticacao JWT
 
-Este documento define os contratos iniciais da API para suportar o site publico e o painel de professores.
+Documento de referencia dos contratos atualmente implementados em `apps/api`.
 
 ## Base da API
-- Base URL (exemplo): `/api/v1`
-- Formato: JSON
-- Autenticacao: JWT em cookie `httpOnly`
-- Autorizacao: papel `admin` e `professor`
+- Prefixo: `/api/v1`
+- Formato: JSON (exceto exportacao CSV)
+- Sessao: cookie `httpOnly` (`access_token` e `refresh_token`)
+- Autorizacao por papel: `admin` e `professor`
 
 ## Fluxo de autenticacao
-1. `POST /auth/login` valida email/senha.
-2. API gera `access token` e `refresh token`.
-3. Tokens sao enviados em cookie `httpOnly`.
-4. Guard de autenticacao valida token em rotas privadas.
-5. Guard de papel valida permissoes por endpoint.
+1. `POST /auth/login` valida credenciais e retorna `usuario`.
+2. API grava cookies `httpOnly` de acesso e refresh.
+3. Rotas protegidas validam cookie com `JwtAuthGuard`.
+4. Guard de papel (`RolesGuard`) bloqueia acesso sem permissao.
+5. `POST /auth/refresh` renova cookies ativos.
 
-## Modulo Auth
+## Auth
 
 ### POST /auth/login
 Request:
@@ -25,12 +25,13 @@ Request:
   "senha": "SenhaForte123"
 }
 ```
+
 Response 200:
 ```json
 {
   "usuario": {
     "id": "uuid",
-    "nome": "Professor A",
+    "nome": "Professor BJJ",
     "email": "professor@equipejiu.com",
     "papel": "professor"
   }
@@ -38,10 +39,25 @@ Response 200:
 ```
 
 ### POST /auth/refresh
-- Renova token de acesso com refresh token valido.
+Response 200:
+```json
+{
+  "usuario": {
+    "id": "uuid",
+    "nome": "Professor BJJ",
+    "email": "professor@equipejiu.com",
+    "papel": "professor"
+  }
+}
+```
 
 ### POST /auth/logout
-- Invalida sessao e remove cookies.
+Response 200:
+```json
+{
+  "message": "Sessao encerrada com sucesso."
+}
+```
 
 ### POST /auth/forgot-password
 Request:
@@ -50,41 +66,77 @@ Request:
   "email": "professor@equipejiu.com"
 }
 ```
-- Dispara email com token de recuperacao.
+
+Response 200:
+```json
+{
+  "message": "Se o e-mail existir, enviaremos instrucoes para redefinicao de senha."
+}
+```
 
 ### POST /auth/reset-password
 Request:
 ```json
 {
-  "token": "reset-token",
-  "novaSenha": "NovaSenhaForte123"
+  "token": "token-recuperacao",
+  "novaSenha": "NovaSenha123"
 }
 ```
 
-## Modulo Alunos
+### GET /auth/me
+Retorna usuario autenticado no cookie.
+
+## Contatos
+
+### POST /contatos (publico)
+Request:
+```json
+{
+  "nome": "Visitante",
+  "email": "visitante@email.com",
+  "interesse": "Kids",
+  "mensagem": "Quero agendar aula experimental"
+}
+```
+
+### GET /contatos (protegido)
+Lista contatos mais recentes.
+
+### PATCH /contatos/:id/lido (protegido)
+Request:
+```json
+{
+  "lido": true
+}
+```
+
+## Alunos
 
 ### GET /alunos
-- Lista alunos com filtros (`ativo`, `faixa`, `nome`).
+Filtros opcionais:
+- `ativo=true|false`
+- `faixa=Azul`
+- `nome=larissa`
 
 ### POST /alunos
 Request:
 ```json
 {
-  "nome": "Aluno Exemplo",
+  "nome": "Larissa M.",
   "cpf": "000.000.000-00",
   "dataNascimento": "2010-05-01",
-  "faixa": "branca",
-  "grau": 0,
+  "faixa": "Azul",
+  "grau": 1,
   "telefone": "+55 11 99999-9999",
-  "fotoUrl": "https://..."
+  "fotoUrl": "https://exemplo.com/foto.jpg"
 }
 ```
 
 ### GET /alunos/:id
-- Retorna ficha completa, frequencia e historico de graduacoes.
+Retorna aluno com historico de graduacoes.
 
 ### PATCH /alunos/:id
-- Atualiza dados cadastrais e status.
+Atualiza dados cadastrais.
 
 ### PATCH /alunos/:id/status
 Request:
@@ -94,26 +146,34 @@ Request:
 }
 ```
 
-## Modulo Aulas
+## Aulas
 
 ### GET /aulas
-- Filtros: `dataInicio`, `dataFim`, `modalidade`, `cancelada`.
+Filtros opcionais:
+- `dataInicio=2026-04-01T00:00:00.000Z`
+- `dataFim=2026-04-30T23:59:59.999Z`
+- `modalidade=Adulto`
+- `cancelada=true|false`
 
 ### POST /aulas
 Request:
 ```json
 {
-  "titulo": "Treino No-Gi",
+  "titulo": "No-Gi Avancado",
   "descricao": "Treino tecnico e situacional",
-  "modalidade": "adulto",
+  "professorId": "uuid-do-professor",
+  "modalidade": "Adulto",
   "dataHora": "2026-05-10T19:00:00Z",
   "duracaoMin": 60,
   "vagas": 30
 }
 ```
 
+### GET /aulas/:id
+Retorna dados completos da aula.
+
 ### PATCH /aulas/:id
-- Atualiza campos da aula.
+Atualiza dados da aula.
 
 ### PATCH /aulas/:id/cancelar
 Request:
@@ -124,72 +184,52 @@ Request:
 ```
 
 ### DELETE /aulas/:id
-- Remove aula quando politica de negocio permitir.
+Remove aula cadastrada.
 
-## Modulo Presencas
-
-### GET /presencas/aula/:aulaId
-- Lista chamada da aula.
+## Presencas
 
 ### POST /presencas
 Request:
 ```json
 {
-  "aulaId": "uuid",
-  "alunoId": "uuid",
+  "aulaId": "uuid-aula",
+  "alunoId": "uuid-aluno",
   "presente": true,
   "observacao": "Chegou no horario"
 }
 ```
 
+### GET /presencas/aula/:aulaId
+Lista presencas da aula (com dados do aluno).
+
 ### GET /presencas/aluno/:alunoId
-- Historico de presenca do aluno.
+Lista historico de presencas do aluno (com dados da aula).
 
 ### GET /presencas/export
-- Exportacao CSV com filtros por periodo e modalidade.
+Retorna CSV (`text/csv`) com filtros opcionais:
+- `dataInicio`
+- `dataFim`
+- `modalidade`
 
-## Modulo Graduacoes
-
-### GET /graduacoes/aluno/:alunoId
-- Retorna historico de faixa/grau do aluno.
+## Graduacoes
 
 ### POST /graduacoes
 Request:
 ```json
 {
-  "alunoId": "uuid",
-  "faixa": "azul",
-  "grau": 1,
+  "alunoId": "uuid-aluno",
+  "faixa": "Roxa",
+  "grau": 2,
   "dataGraduacao": "2026-04-01",
+  "professorId": "uuid-professor",
   "observacao": "Graduacao trimestral"
 }
 ```
 
-## Modulo Contatos
+### GET /graduacoes/aluno/:alunoId
+Retorna historico de faixas/graus do aluno.
 
-### POST /contatos
-Request:
-```json
-{
-  "nome": "Visitante",
-  "email": "visitante@email.com",
-  "interesse": "kids",
-  "mensagem": "Gostaria de agendar aula experimental"
-}
-```
-
-### GET /contatos
-- Rota restrita para listar mensagens recebidas.
-
-### PATCH /contatos/:id/lido
-Request:
-```json
-{
-  "lido": true
-}
-```
-
-## Modulo Dashboard
+## Dashboard
 
 ### GET /dashboard/resumo
 Response 200:
@@ -203,17 +243,15 @@ Response 200:
 ```
 
 ### GET /dashboard/frequencia-mensal
-- Retorna serie temporal para grafico.
+Response 200 (exemplo):
+```json
+[
+  { "mes": "2026-01", "totalPresencas": 64 },
+  { "mes": "2026-02", "totalPresencas": 71 }
+]
+```
 
-## DTOs basicos (referencia)
-- `LoginDto`: `email`, `senha`
-- `CreateAlunoDto`: dados cadastrais e graduacao atual
-- `CreateAulaDto`: metadados de agenda e capacidade
-- `RegistrarPresencaDto`: `aulaId`, `alunoId`, `presente`, `observacao`
-- `CreateGraduacaoDto`: `alunoId`, `faixa`, `grau`, `dataGraduacao`, `observacao`
-- `CreateContatoDto`: `nome`, `email`, `interesse`, `mensagem`
-
-## Mapeamento de rotas de frontend
+## Mapeamento de rotas frontend
 
 ### Rotas publicas
 - `/`
@@ -222,15 +260,15 @@ Response 200:
 - `/galeria`
 - `/contato`
 
-### Rotas protegidas
-- `/adm/login`
-- `/adm/dashboard`
-- `/adm/aulas`
-- `/adm/presencas`
-- `/adm/alunos`
+### Rotas administrativas
+- `/adm/login` (nao protegida por guard de frontend)
+- `/adm/dashboard` (protegida por sessao)
+- `/adm/aulas` (protegida por sessao)
+- `/adm/presencas` (protegida por sessao)
+- `/adm/alunos` (protegida por sessao)
 
-## Convencoes de erro
-Formato padrao sugerido:
+## Convencao de erros
+Formato padrao NestJS:
 ```json
 {
   "statusCode": 400,
@@ -239,8 +277,8 @@ Formato padrao sugerido:
 }
 ```
 
-## Seguranca inicial
-- Rate limit em login e recuperacao de senha.
-- Senhas com hash forte (argon2 ou bcrypt com custo adequado).
-- Cookies `httpOnly`, `secure` em producao e `sameSite` configurado.
-- Auditoria de acoes sensiveis (cancelamento de aula, graduacao e inativacao de aluno).
+## Segurança implementada
+- Rate limit in-memory para login e recovery.
+- Hash de senha com `bcryptjs`.
+- Cookies `httpOnly` com `sameSite=lax`.
+- Guard de autenticacao e guard de papel nas rotas privadas.
