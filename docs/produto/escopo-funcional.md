@@ -10,11 +10,13 @@ Baseado no documento tecnico do projeto BJJ (versao 1.0), este arquivo consolida
 
 ## Status da Entrega Visual (fase atual)
 - Frontend das 5 paginas publicas implementado com foco exclusivamente visual.
+- Frontend visual das 5 telas administrativas implementado com dados mockados.
 - Rotas publicas ativas: `/`, `/sobre`, `/modalidades`, `/galeria`, `/contato`.
-- Rota administrativa inicial: `/adm` (placeholder visual para proxima fase).
+- Rotas administrativas ativas: `/adm/login`, `/adm/dashboard`, `/adm/aulas`, `/adm/presencas`, `/adm/alunos`.
+- `/adm` redireciona para `/adm/dashboard`.
 - Arquitetura de frontend separada por dominio:
   - `src/publicas` para componentes e paginas abertas.
-  - `src/adm` para placeholders da area restrita.
+  - `src/adm` para componentes e paginas da area restrita.
 - Conteudo e dados nesta etapa sao estaticos (mockados), sem persistencia.
 - Sem autenticacao funcional e sem integracao com API nesta entrega.
 
