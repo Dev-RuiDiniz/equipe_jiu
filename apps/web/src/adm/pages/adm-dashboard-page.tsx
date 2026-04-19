@@ -1,104 +1,218 @@
+"use client";
+
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AdmKpiCard } from "@/adm/components/adm-kpi-card";
 import { AdmShell } from "@/adm/components/adm-shell";
+import { AdmStatePanel } from "@/adm/components/adm-state-panel";
 import { AdmStatusBadge } from "@/adm/components/adm-status-badge";
 import type { KpiCard } from "@/adm/types";
+import type { AulaApi, DashboardFrequenciaItem, DashboardResumoResponse } from "@/adm/types/api";
+import { apiClient, extractApiErrorMessage, withQuery } from "@/lib/api-client";
 
-const kpis: KpiCard[] = [
-  { label: "Alunos ativos", value: "128", trend: "+9 no mes", tone: "up" },
-  { label: "Presenca media", value: "82%", trend: "+4 p.p.", tone: "up" },
-  { label: "Aulas na semana", value: "22", trend: "Fluxo estavel", tone: "neutral" },
-  { label: "Alertas de faixa", value: "6", trend: "Revisar hoje", tone: "alert" },
-];
+function formatDateTime(dateTime: string) {
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(dateTime));
+}
 
-const aulas = [
-  { titulo: "No-Gi Avancado", horario: "19:00", sala: "Tatame 1", status: "Confirmada" },
-  { titulo: "Kids Intermediario", horario: "18:00", sala: "Tatame 2", status: "Agendada" },
-  { titulo: "Competicao", horario: "20:15", sala: "Tatame 1", status: "Confirmada" },
-];
+function formatMonthLabel(monthKey: string) {
+  const [year, month] = monthKey.split("-");
+  if (!year || !month) {
+    return monthKey;
+  }
 
-const frequencia = [56, 72, 68, 80, 76, 84, 88, 82, 90, 86, 91, 89];
+  const date = new Date(Number(year), Number(month) - 1, 1);
+  return new Intl.DateTimeFormat("pt-BR", { month: "short" }).format(date);
+}
 
 export function AdmDashboardPage() {
+  const [resumo, setResumo] = useState<DashboardResumoResponse | null>(null);
+  const [frequencia, setFrequencia] = useState<DashboardFrequenciaItem[]>([]);
+  const [proximasAulas, setProximasAulas] = useState<AulaApi[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadDashboard = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const [resumoResponse, frequenciaResponse, aulasResponse] = await Promise.all([
+        apiClient.get<DashboardResumoResponse>("dashboard/resumo"),
+        apiClient.get<DashboardFrequenciaItem[]>("dashboard/frequencia-mensal"),
+        apiClient.get<AulaApi[]>(
+          withQuery("aulas", {
+            dataInicio: new Date().toISOString(),
+            cancelada: false,
+          }),
+        ),
+      ]);
+
+      const aulasOrdenadas = [...aulasResponse].sort(
+        (left, right) => new Date(left.dataHora).getTime() - new Date(right.dataHora).getTime(),
+      );
+
+      setResumo(resumoResponse);
+      setFrequencia(frequenciaResponse);
+      setProximasAulas(aulasOrdenadas.slice(0, 3));
+    } catch (requestError) {
+      setError(extractApiErrorMessage(requestError, "Nao foi possivel carregar o dashboard no momento."));
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadDashboard();
+  }, [loadDashboard]);
+
+  const kpis = useMemo<KpiCard[]>(() => {
+    if (!resumo) {
+      return [];
+    }
+
+    return [
+      { label: "Alunos ativos", value: String(resumo.alunosAtivos), trend: "Base atual", tone: "up" },
+      { label: "Presenca media", value: `${resumo.presencaMediaSemana}%`, trend: "Ultimos 7 dias", tone: "up" },
+      { label: "Aulas futuras", value: String(resumo.proximasAulas), trend: "Agenda ativa", tone: "neutral" },
+      { label: "Alertas de faixa", value: String(resumo.alertasGraduacao), trend: "Revisar progresso", tone: "alert" },
+    ];
+  }, [resumo]);
+
+  const maxPresencas = useMemo(() => {
+    const values = frequencia.map((item) => item.totalPresencas);
+    return values.length > 0 ? Math.max(...values, 1) : 1;
+  }, [frequencia]);
+
   return (
     <AdmShell
       title="Dashboard"
-      subtitle="Resumo visual do desempenho semanal da equipe e dos principais alertas operacionais."
+      subtitle="Resumo operacional da equipe com indicadores reais de alunos, aulas e presencas."
       actions={
         <>
-          <button type="button" className="btn-outline">
-            Exportar relatorio
-          </button>
-          <button type="button" className="btn-primary">
-            Nova aula
+          <button type="button" className="btn-outline" onClick={() => void loadDashboard()}>
+            Atualizar dados
           </button>
         </>
       }
     >
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {kpis.map((item) => (
-          <AdmKpiCard key={item.label} item={item} />
-        ))}
-      </section>
-
-      <section className="mt-6 grid gap-5 xl:grid-cols-[1.2fr,0.8fr]">
-        <article className="section-shell p-5 md:p-6">
-          <p className="text-xs uppercase tracking-[0.16em] text-orange-300">Frequencia mensal (mock)</p>
-          <h2 className="mt-2 text-2xl font-bold text-white">Tendencia de presenca por semana</h2>
-          <div className="mt-6 grid h-56 grid-cols-12 items-end gap-2 rounded-2xl border border-white/10 bg-[#0f1628] p-3">
-            {frequencia.map((valor, index) => (
-              <div key={index} className="group flex h-full items-end justify-center">
-                <div
-                  className="w-full rounded-md bg-gradient-to-t from-orange-500 to-emerald-300/80"
-                  style={{ height: `${valor}%` }}
-                  aria-label={`Semana ${index + 1}: ${valor}%`}
-                />
-              </div>
+      {isLoading ? (
+        <AdmStatePanel
+          tone="loading"
+          title="Carregando indicadores"
+          message="Buscando dados reais de frequencia e agenda para montar o dashboard."
+        />
+      ) : error ? (
+        <AdmStatePanel
+          tone="error"
+          title="Falha ao carregar dashboard"
+          message={error}
+          action={
+            <button type="button" className="btn-outline" onClick={() => void loadDashboard()}>
+              Tentar novamente
+            </button>
+          }
+        />
+      ) : (
+        <>
+          <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {kpis.map((item) => (
+              <AdmKpiCard key={item.label} item={item} />
             ))}
-          </div>
-        </article>
+          </section>
 
-        <article className="section-shell p-5 md:p-6">
-          <p className="text-xs uppercase tracking-[0.16em] text-emerald-300">Proximas aulas</p>
-          <h2 className="mt-2 text-2xl font-bold text-white">Agenda de hoje</h2>
-          <ul className="mt-4 space-y-3">
-            {aulas.map((aula) => (
-              <li key={`${aula.titulo}-${aula.horario}`} className="card p-4">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <p className="font-semibold text-white">{aula.titulo}</p>
-                    <p className="text-sm text-slate-300">
-                      {aula.horario} • {aula.sala}
-                    </p>
-                  </div>
-                  <AdmStatusBadge status={aula.status} />
+          <section className="mt-6 grid gap-5 xl:grid-cols-[1.2fr,0.8fr]">
+            <article className="section-shell p-5 md:p-6">
+              <p className="text-xs uppercase tracking-[0.16em] text-orange-300">Frequencia mensal</p>
+              <h2 className="mt-2 text-2xl font-bold text-white">Registros de presenca por mes</h2>
+
+              {frequencia.length === 0 ? (
+                <div className="mt-5">
+                  <AdmStatePanel
+                    tone="empty"
+                    title="Sem historico no periodo"
+                    message="Nenhuma presenca foi registrada nos ultimos meses."
+                  />
                 </div>
-              </li>
-            ))}
-          </ul>
-        </article>
-      </section>
+              ) : (
+                <div className="mt-6 grid h-56 grid-cols-6 items-end gap-3 rounded-2xl border border-white/10 bg-[#0f1628] p-4">
+                  {frequencia.map((item) => {
+                    const height = Math.max((item.totalPresencas / maxPresencas) * 100, 6);
+                    return (
+                      <div key={item.mes} className="group flex h-full flex-col items-center justify-end gap-2">
+                        <div
+                          className="w-full rounded-md bg-gradient-to-t from-orange-500 to-emerald-300/80"
+                          style={{ height: `${height}%` }}
+                          aria-label={`${item.mes}: ${item.totalPresencas} presencas`}
+                        />
+                        <p className="text-[11px] uppercase tracking-[0.08em] text-slate-300">
+                          {formatMonthLabel(item.mes)}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </article>
 
-      <section className="mt-6 section-shell p-5 md:p-6">
-        <p className="text-xs uppercase tracking-[0.16em] text-orange-300">Alertas operacionais</p>
-        <h2 className="mt-2 text-2xl font-bold text-white">Faixas proximas de renovacao</h2>
-        <div className="mt-4 grid gap-3 md:grid-cols-3">
-          <article className="card p-4">
-            <p className="font-semibold text-white">Larissa M.</p>
-            <p className="text-sm text-slate-300">Faixa azul • 1º grau</p>
-            <p className="mt-2 text-sm text-amber-200">Revisar em 12 dias</p>
-          </article>
-          <article className="card p-4">
-            <p className="font-semibold text-white">Paulo R.</p>
-            <p className="text-sm text-slate-300">Faixa branca • 4º grau</p>
-            <p className="mt-2 text-sm text-amber-200">Revisar em 9 dias</p>
-          </article>
-          <article className="card p-4">
-            <p className="font-semibold text-white">Julia C.</p>
-            <p className="text-sm text-slate-300">Faixa roxa • 2º grau</p>
-            <p className="mt-2 text-sm text-amber-200">Revisar em 15 dias</p>
-          </article>
-        </div>
-      </section>
+            <article className="section-shell p-5 md:p-6">
+              <p className="text-xs uppercase tracking-[0.16em] text-emerald-300">Proximas aulas</p>
+              <h2 className="mt-2 text-2xl font-bold text-white">Agenda operacional</h2>
+
+              {proximasAulas.length === 0 ? (
+                <div className="mt-5">
+                  <AdmStatePanel
+                    tone="empty"
+                    title="Sem aulas programadas"
+                    message="Cadastre novas aulas para preencher a agenda administrativa."
+                  />
+                </div>
+              ) : (
+                <ul className="mt-4 space-y-3">
+                  {proximasAulas.map((aula) => (
+                    <li key={aula.id} className="card p-4">
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                          <p className="font-semibold text-white">{aula.titulo}</p>
+                          <p className="text-sm text-slate-300">
+                            {formatDateTime(aula.dataHora)} • {aula.modalidade}
+                          </p>
+                        </div>
+                        <AdmStatusBadge status={aula.cancelada ? "Cancelada" : "Confirmada"} />
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </article>
+          </section>
+
+          <section className="mt-6 section-shell p-5 md:p-6">
+            <p className="text-xs uppercase tracking-[0.16em] text-orange-300">Alertas operacionais</p>
+            <h2 className="mt-2 text-2xl font-bold text-white">Indicadores de acompanhamento</h2>
+            <div className="mt-4 grid gap-3 md:grid-cols-3">
+              <article className="card p-4">
+                <p className="font-semibold text-white">Alertas de graduacao</p>
+                <p className="text-sm text-slate-300">Alunos sem graduacao recente</p>
+                <p className="mt-2 text-sm text-amber-200">{resumo?.alertasGraduacao ?? 0} sinalizados</p>
+              </article>
+              <article className="card p-4">
+                <p className="font-semibold text-white">Presencas da semana</p>
+                <p className="text-sm text-slate-300">Percentual de participacao geral</p>
+                <p className="mt-2 text-sm text-emerald-200">{resumo?.presencaMediaSemana ?? 0}% de media</p>
+              </article>
+              <article className="card p-4">
+                <p className="font-semibold text-white">Agenda futura</p>
+                <p className="text-sm text-slate-300">Aulas confirmadas na fila</p>
+                <p className="mt-2 text-sm text-sky-200">{resumo?.proximasAulas ?? 0} aulas programadas</p>
+              </article>
+            </div>
+          </section>
+        </>
+      )}
     </AdmShell>
   );
 }
