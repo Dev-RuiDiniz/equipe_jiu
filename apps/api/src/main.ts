@@ -5,8 +5,16 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const origins = (process.env.CORS_ORIGINS ?? '')
+    .split(',')
+    .map((item) => item.trim())
+    .filter((item) => item.length > 0);
 
   app.use(cookieParser());
+  app.enableCors({
+    origin: origins.length > 0 ? origins : true,
+    credentials: true,
+  });
   app.setGlobalPrefix('api/v1');
   app.useGlobalPipes(
     new ValidationPipe({

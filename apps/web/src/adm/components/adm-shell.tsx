@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { AdmMenuItem } from "@/adm/types";
+import { useAdmSession } from "@/adm/hooks/use-adm-session";
 
 type AdmShellProps = {
   title: string;
@@ -10,6 +11,8 @@ type AdmShellProps = {
   actions?: React.ReactNode;
   children: React.ReactNode;
   menuItems?: AdmMenuItem[];
+  requireAuth?: boolean;
+  redirectAuthenticatedTo?: string;
 };
 
 const defaultMenu: AdmMenuItem[] = [
@@ -20,10 +23,24 @@ const defaultMenu: AdmMenuItem[] = [
   { label: "Alunos", href: "/adm/alunos" },
 ];
 
-export function AdmShell({ title, subtitle, actions, children, menuItems = defaultMenu }: AdmShellProps) {
+export function AdmShell({
+  title,
+  subtitle,
+  actions,
+  children,
+  menuItems = defaultMenu,
+  requireAuth = true,
+  redirectAuthenticatedTo,
+}: AdmShellProps) {
   const pathname = usePathname();
+  const { user, isLoading, error, logout } = useAdmSession({
+    requireAuth,
+    redirectAuthenticatedTo,
+  });
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
+
+  const isLoginPage = pathname.startsWith("/adm/login");
 
   return (
     <div className="min-h-screen bg-[#090d17] text-slate-100">
@@ -52,8 +69,25 @@ export function AdmShell({ title, subtitle, actions, children, menuItems = defau
 
           <div className="mt-8 card p-4 text-sm text-slate-300">
             <p className="text-xs uppercase tracking-[0.16em] text-slate-400">Status do ambiente</p>
-            <p className="mt-2 font-semibold text-emerald-200">Modo visual ativo</p>
-            <p className="mt-1">Sem conexao com API nesta fase.</p>
+            {isLoading ? (
+              <p className="mt-2 font-semibold text-slate-200">Validando sessao...</p>
+            ) : user ? (
+              <>
+                <p className="mt-2 font-semibold text-emerald-200">Sessao ativa</p>
+                <p className="mt-1 text-xs text-slate-300">{user.nome} • {user.papel}</p>
+              </>
+            ) : (
+              <>
+                <p className="mt-2 font-semibold text-orange-200">Sessao nao autenticada</p>
+                <p className="mt-1 text-xs text-slate-300">Acesse com credenciais de professor ou admin.</p>
+              </>
+            )}
+            {error ? <p className="mt-2 text-xs text-rose-200">{error}</p> : null}
+            {!isLoginPage && user ? (
+              <button type="button" onClick={() => void logout()} className="btn-outline mt-3 w-full text-xs">
+                Sair da sessao
+              </button>
+            ) : null}
           </div>
         </aside>
 
@@ -68,7 +102,15 @@ export function AdmShell({ title, subtitle, actions, children, menuItems = defau
               {actions ? <div className="flex flex-wrap gap-2">{actions}</div> : null}
             </header>
 
-            <div className="mt-6">{children}</div>
+            <div className="mt-6">
+              {requireAuth && (isLoading || !user) ? (
+                <div className="card p-5 text-sm text-slate-300">
+                  {isLoading ? "Carregando sessao administrativa..." : "Redirecionando para login..."}
+                </div>
+              ) : (
+                children
+              )}
+            </div>
           </div>
         </section>
       </div>

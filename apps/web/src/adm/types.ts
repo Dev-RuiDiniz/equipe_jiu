@@ -3,6 +3,14 @@ export type AdmMenuItem = {
   href: "/adm" | "/adm/login" | "/adm/dashboard" | "/adm/aulas" | "/adm/presencas" | "/adm/alunos";
 };
 
+export type AdmSessionUser = {
+  id: string;
+  nome: string;
+  email: string;
+  papel: "admin" | "professor";
+  ativo?: boolean;
+};
+
 export type KpiCard = {
   label: string;
   value: string;
