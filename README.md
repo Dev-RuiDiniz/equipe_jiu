@@ -45,8 +45,13 @@ Organizar a base tecnica e evoluir por fases, com entregas versionadas de fronte
 - `/galeria`
 - `/contato`
 
-### Administrativa (placeholder visual)
-- `/adm`
+### Administrativas
+- `/adm` (redireciona para `/adm/dashboard`)
+- `/adm/login`
+- `/adm/dashboard`
+- `/adm/aulas`
+- `/adm/presencas`
+- `/adm/alunos`
 
 ## Como executar o frontend
 ```bash
@@ -65,8 +70,9 @@ npm run dev
 
 ## Estado atual
 - Frontend visual das 5 paginas publicas implementado.
+- Frontend visual das 5 paginas administrativas implementado.
 - Estrutura de dominio separada entre `publicas` e `adm` no `apps/web`.
-- Area `adm` ainda em placeholder visual (sem autenticacao funcional).
+- Area `adm` com telas visuais completas e dados mockados (sem autenticacao funcional).
 - Backend/API ainda nao integrados ao frontend nesta fase.
 
 ## Contribuicao
