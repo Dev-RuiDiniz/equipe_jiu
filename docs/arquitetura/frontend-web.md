@@ -1,64 +1,66 @@
-# Frontend Web - Convencoes e Organizacao
+# Frontend Web - Arquitetura e Convenções
 
-Guia de referencia para evolucao do `apps/web`.
+Referência técnica de organização do `apps/web`.
 
-## Stack atual
+## Stack
 - Next.js 14 (App Router)
 - TypeScript
 - Tailwind CSS
 
-## Estrutura de dominio
-- `src/app`: camada de rotas (wrappers curtos por URL)
-- `src/publicas`: paginas abertas e componentes de conteudo institucional
-- `src/adm`: shell, componentes reutilizaveis e paginas da area restrita
+## Arquitetura por domínio
+- `src/app`: camada fina de rotas, sem regra de negócio.
+- `src/publicas`: UI e conteúdo das páginas públicas.
+- `src/adm`: UI administrativa, sessão e integrações da área restrita.
+- `src/lib`: infraestrutura de cliente HTTP compartilhado.
 
-Exemplo de fluxo de roteamento:
-- `src/app/sobre/page.tsx` importa `src/publicas/pages/sobre-page.tsx`
-- `src/app/adm/dashboard/page.tsx` importa `src/adm/pages/adm-dashboard-page.tsx`
+Fluxo padrão de rota:
+- `src/app/rota/page.tsx` importa `src/publicas/pages/*` ou `src/adm/pages/*`.
 
-## Convencoes de implementacao
-- Cada rota publica deve manter composicao por secoes reutilizaveis.
-- Evitar logica de negocio no `src/app`; usar apenas montagem de pagina.
-- Conteudo visual estatico/mocado permanece em cada pagina enquanto nao houver API.
-- Componentes de layout compartilhado:
-  - `public-shell` para area publica
-  - `adm-shell` para area administrativa
-- Componentes administrativos reutilizaveis:
-  - `adm-kpi-card` para indicadores
-  - `adm-table` para listagens
-  - `adm-status-badge` para estado visual
-  - `adm-form-field` para campos de formulario
+## Organização administrativa
 
-## Sistema visual (v1)
-- Tokens de cor, raio e sombra em `src/app/globals.css`.
-- Tipografia:
-  - Display: Bebas Neue
-  - Texto: Manrope
-- Classes utilitarias proprietarias:
-  - `section-shell`
-  - `card`
-  - `btn-primary`
-  - `btn-outline`
-  - `signal`
+### Componentes base
+- `adm-shell`: layout lateral + topo + validação de sessão.
+- `adm-form-field`: campos de formulário.
+- `adm-table`: tabela visual reutilizável.
+- `adm-kpi-card`: cards de indicadores.
+- `adm-status-badge`: badges de status.
+- `adm-state-panel`: estados de loading/empty/error.
 
-## Rotas existentes
-### Publicas
-- `/`
-- `/sobre`
-- `/modalidades`
-- `/galeria`
-- `/contato`
+### Sessão
+- Hook `use-adm-session` chama `GET /auth/me`.
+- Rotas administrativas usam `AdmShell` com `requireAuth=true` (default).
+- Login usa `requireAuth=false` e redireciona autenticado para `/adm/dashboard`.
+- Logout via `POST /auth/logout`.
 
-### Adm
-- `/adm` (redireciona para `/adm/dashboard`)
-- `/adm/login`
-- `/adm/dashboard`
-- `/adm/aulas`
-- `/adm/presencas`
-- `/adm/alunos`
+## Cliente HTTP
+- Arquivo: `src/lib/api-client.ts`
+- Responsabilidades:
+  - base URL por `NEXT_PUBLIC_API_BASE_URL`;
+  - envio com `credentials: include` para cookies `httpOnly`;
+  - tratamento central de erros (`ApiError`);
+  - helper de query string (`withQuery`);
+  - normalização de mensagem de erro (`extractApiErrorMessage`).
 
-## Proximos passos recomendados
-- Integrar conteudo dinamico com API NestJS.
-- Implementar fluxo de autenticacao real para `adm`.
-- Extrair componentes de secao para biblioteca interna conforme repeticao.
-- Adicionar testes de interface e regressao visual.
+## Rotas e estado funcional
+
+### Públicas
+- `/`, `/sobre`, `/modalidades`, `/galeria`
+- `/contato` com integração ativa (`POST /contatos`)
+
+### Administrativas
+- `/adm/login`: login real + recuperação de senha (request API)
+- `/adm/dashboard`: leitura de agregações (`/dashboard/*`)
+- `/adm/aulas`: listagem/filtros + cancelamento
+- `/adm/presencas`: chamada por aula + exportação CSV
+- `/adm/alunos`: cadastro + ativação/inativação
+
+## Convenções de implementação
+- Estados assíncronos obrigatórios: `loading`, `empty`, `error`.
+- Textos e labels do produto em pt-BR.
+- Preferir tipos de contrato em `src/adm/types/api.ts` para alinhar com backend.
+- Evitar duplicar regra de negócio da API no frontend.
+
+## Pendências arquiteturais
+- Extrair camada de estado (ex.: React Query) para cache e invalidação.
+- Centralizar guard de rota com middleware quando sessão estiver estável em produção.
+- Adicionar testes de interface para fluxos críticos da área administrativa.

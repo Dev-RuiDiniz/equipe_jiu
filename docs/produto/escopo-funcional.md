@@ -1,116 +1,114 @@
 # Escopo Funcional
 
-Baseado no documento tecnico do projeto BJJ (versao 1.0), este arquivo consolida as 10 paginas previstas e os principais comportamentos esperados.
+Consolidação do escopo do produto com status real da implementação atual.
 
-## Visao Geral
-- Total de paginas: 10
-- Area publica: 5 paginas (sem autenticacao)
-- Area restrita: 5 paginas (acesso professor/admin com JWT)
-- Objetivo: captar novos alunos, apresentar o time e permitir gestao academica basica
+## Visão geral
+- Total previsto: 10 páginas
+- Área pública: 5 páginas
+- Área administrativa: 5 páginas
+- Objetivo: captação de novos alunos + gestão acadêmica básica
 
-## Status da Entrega Visual (fase atual)
-- Frontend das 5 paginas publicas implementado com foco exclusivamente visual.
-- Frontend visual das 5 telas administrativas implementado com dados mockados.
-- Rotas publicas ativas: `/`, `/sobre`, `/modalidades`, `/galeria`, `/contato`.
-- Rotas administrativas ativas: `/adm/login`, `/adm/dashboard`, `/adm/aulas`, `/adm/presencas`, `/adm/alunos`.
-- `/adm` redireciona para `/adm/dashboard`.
-- Arquitetura de frontend separada por dominio:
-  - `src/publicas` para componentes e paginas abertas.
-  - `src/adm` para componentes e paginas da area restrita.
-- Conteudo e dados nesta etapa sao estaticos (mockados), sem persistencia.
-- Sem autenticacao funcional e sem integracao com API nesta entrega.
+## Status atual por área
 
-## Area Publica (sem login)
+### Área pública
+- UI completa entregue.
+- Fluxo funcional entregue em produção local:
+  - `/contato` persistindo em `contatos` via API.
+- Páginas:
+  - `/`
+  - `/sobre`
+  - `/modalidades`
+  - `/galeria`
+  - `/contato`
+
+### Área administrativa
+- UI completa entregue.
+- Fluxo funcional parcialmente entregue:
+  - `/adm/login`: autenticação real (JWT em cookie `httpOnly`).
+  - `/adm/dashboard`: KPIs e gráfico com agregações reais.
+  - `/adm/aulas`: leitura/filtros e cancelamento.
+  - `/adm/presencas`: chamada por aula e exportação CSV.
+  - `/adm/alunos`: cadastro e ativação/inativação.
+
+- Rotas:
+  - `/adm` redireciona para `/adm/dashboard`
+  - `/adm/login`
+  - `/adm/dashboard`
+  - `/adm/aulas`
+  - `/adm/presencas`
+  - `/adm/alunos`
+
+## Escopo detalhado por página
 
 ### 1. Home
-- Hero com imagem do time.
-- CTA de inscricao.
-- Resumo de horarios e modalidades.
-- Depoimentos de alunos.
-- Link direto para WhatsApp.
-- Conquistas e destaques recentes.
+- Hero do time
+- CTA de inscrição
+- Resumo de horários e modalidades
+- Depoimentos e destaques
+- Link para WhatsApp
 
 ### 2. Sobre
-- Historia do time e fundadores.
-- Galeria de professores e graduacoes.
-- Valores e filosofia da equipe.
-- Indicadores: alunos, anos de atividade e medalhas.
-- Fotos da academia e ambiente de treino.
+- História da equipe
+- Professores e graduações
+- Valores e cultura
+- Indicadores institucionais
 
-### 3. Modalidades / Graduacoes
-- Grade de horarios por turma.
-- Turmas: Adulto, Kids e Competicao.
-- Descricao de cada modalidade.
-- Explicacao do sistema de faixas.
-- Requisitos de graduacao.
-- Tempo medio por faixa.
+### 3. Modalidades/Graduações
+- Grade de turmas
+- Descrição de modalidades (Adulto, Kids, Competição)
+- Explicação de faixas e graus
 
-### 4. Galeria / Resultados
-- Grid de fotos de treinos e eventos.
-- Fotos de competicoes.
-- Lista de resultados de campeonatos.
-- Filtros por ano e evento.
-- Lightbox para visualizacao ampliada.
+### 4. Galeria/Resultados
+- Grid responsivo
+- Filtros visuais
+- Lightbox visual
 
-### 5. Contato / Inscricao
-- Formulario com nome, email, modalidade de interesse e mensagem.
-- Botao com integracao para WhatsApp.
-- Mapa incorporado (Google Maps embed).
-- Endereco, telefone e horario de atendimento.
+### 5. Contato/Inscrição
+- Formulário
+- WhatsApp
+- Mapa e dados de atendimento
 
-## Area Restrita (professores e admin)
+### 6. Login administrativo
+- Login real com API
+- Recuperação de senha (request funcional)
+- Redirecionamento pós-login
 
-### 6. Login
-- Formulario com email e senha.
-- Geracao de JWT em cookie `httpOnly`.
-- Fluxo de recuperacao de senha por email.
-- Redirecionamento para dashboard apos sucesso.
-- Protecao de tentativa excessiva (rate limit).
+### 7. Dashboard administrativo
+- Total de alunos ativos
+- Média de presença semanal
+- Próximas aulas
+- Alertas de graduação
+- Frequência mensal agregada
 
-### 7. Dashboard
-- Total de alunos ativos.
-- Presenca media semanal.
-- Proximas aulas agendadas.
-- Alertas de graduacoes/faixas.
-- Grafico de frequencia mensal.
-- Resumo de atividades recentes.
+### 8. Controle de aulas
+- Listagem e filtros reais
+- Cancelamento funcional
+- Pendência: create/update/delete completo na UI
 
-### 8. Controle de Aulas
-- CRUD completo de aulas.
-- Campos: titulo, modalidade, data/hora, duracao, vagas opcionais.
-- Acao de cancelamento com aviso.
-- Historico de aulas passadas.
-- Filtros por periodo e modalidade.
+### 9. Presenças
+- Chamada por aula
+- Registro por aluno
+- Histórico por aula
+- Exportação CSV
 
-### 9. Presenca de Alunos
-- Lista de alunos por aula.
-- Marcacao por checkbox.
-- Registro com timestamp.
-- Historico por aluno e por aula.
-- Exportacao em CSV.
-- Indicador percentual de frequencia.
+### 10. Cadastro e acompanhamento de alunos
+- Cadastro funcional
+- Ativar/inativar funcional
+- Pendência: edição completa da ficha
 
-### 10. Cadastro e Acompanhamento
-- Ficha completa do aluno.
-- Dados de faixa, grau e foto.
-- Historico de graduacoes.
-- Frequencia acumulada.
-- Observacoes do professor.
-- Ativacao e inativacao de aluno.
+## Fluxo de autenticação
+1. Usuário autentica em `/adm/login` via `POST /auth/login`.
+2. API retorna usuário e define cookies `access_token` e `refresh_token`.
+3. Área administrativa valida sessão por `GET /auth/me`.
+4. Logout remove cookies em `POST /auth/logout`.
 
-## Fluxo de Autenticacao
-1. Usuario informa email e senha na pagina de login.
-2. API valida credenciais e emite JWT.
-3. Token e salvo em cookie `httpOnly`.
-4. Middleware valida token em cada rota protegida.
-5. Rotas privadas bloqueiam acesso sem token valido.
+## Perfis e permissões
+- `admin`: gestão completa de módulos administrativos.
+- `professor`: acesso operacional à rotina de aulas, presenças e alunos.
+- visitante: acesso apenas às páginas públicas.
 
-## Permissoes e Responsabilidades
-- `admin`: acesso completo a dashboard, usuarios e operacao academica.
-- `professor`: acesso a aulas, presenca, graduacoes e acompanhamento de alunos.
-- Visitante publico: acesso somente a conteudo institucional e formulario de contato.
-
-## Requisitos transversais
-- Responsividade mobile-first em todas as paginas publicas.
-- SEO basico para paginas abertas.
-- Usabilidade e navegacao clara entre conteudo institucional e inscricao.
+## Pendências funcionais para fechar escopo
+- Gestão de `contatos` na área administrativa (listar/marcar lido).
+- Gestão de `graduacoes` no frontend administrativo.
+- Fluxo completo de recuperação de senha com envio real de e-mail.
+- Cobertura de testes automatizados para regras críticas.

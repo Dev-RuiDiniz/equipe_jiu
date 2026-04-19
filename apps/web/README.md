@@ -1,36 +1,78 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# apps/web
 
-## Getting Started
+Frontend Next.js da plataforma Equipe Jiu.
 
-First, run the development server:
+## Escopo atual do frontend
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+### Área pública
+- `/`
+- `/sobre`
+- `/modalidades`
+- `/galeria`
+- `/contato`
+
+Integração ativa:
+- envio do formulário de contato para `POST /contatos`.
+
+### Área administrativa
+- `/adm/login`
+- `/adm/dashboard`
+- `/adm/aulas`
+- `/adm/presencas`
+- `/adm/alunos`
+
+Integrações ativas:
+- login administrativo com sessão em cookie `httpOnly`;
+- dashboard com dados reais (`/dashboard/resumo` e `/dashboard/frequencia-mensal`);
+- listagem e cancelamento de aulas;
+- chamada e exportação CSV de presenças;
+- cadastro e ativação/inativação de alunos.
+
+## Organização de pastas
+```text
+src/
+|-- app/         # wrappers de rotas (URLs limpas)
+|-- publicas/    # páginas e componentes públicos
+|-- adm/         # páginas e componentes administrativos
+`-- lib/         # cliente HTTP e utilitários compartilhados
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Convenções principais
+- `src/app/*` deve manter somente composição de rota.
+- Lógica de domínio da UI fica em `src/publicas/*` e `src/adm/*`.
+- `apiClient` centraliza chamadas HTTP, tratamento de erro e query params.
+- Componentes administrativos reutilizáveis:
+  - `adm-shell`
+  - `adm-table`
+  - `adm-kpi-card`
+  - `adm-status-badge`
+  - `adm-form-field`
+  - `adm-state-panel`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Variáveis de ambiente
+Crie `apps/web/.env.local`:
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+```env
+NEXT_PUBLIC_API_BASE_URL=http://localhost:3001/api/v1
+```
 
-## Learn More
+## Execução local
+```bash
+cd apps/web
+npm install
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+Aplicação: `http://localhost:3000`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Qualidade
+```bash
+npm run lint
+npm run build
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## Pendências funcionais no frontend
+- CRUD completo de aulas (create/update/delete na UI).
+- Edição completa de ficha de alunos.
+- Telas administrativas para `contatos` e `graduacoes`.
+- Fluxo visual de reset de senha com token real.
