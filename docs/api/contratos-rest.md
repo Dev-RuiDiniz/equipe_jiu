@@ -223,12 +223,11 @@ Response 200:
 - `/contato`
 
 ### Rotas protegidas
-- `/login`
-- `/dashboard`
-- `/dashboard/aulas`
-- `/dashboard/presencas`
-- `/dashboard/alunos`
-- `/dashboard/graduacoes`
+- `/adm/login`
+- `/adm/dashboard`
+- `/adm/aulas`
+- `/adm/presencas`
+- `/adm/alunos`
 
 ## Convencoes de erro
 Formato padrao sugerido:
