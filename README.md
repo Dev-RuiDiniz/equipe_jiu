@@ -1,29 +1,49 @@
-# Equipe Jiu - Plataforma Web e Painel de Professores
+# Equipe Jiu - Monorepo
 
-Repositorio monorepo do projeto full-stack do time de jiu-jitsu, com site publico e area restrita para professores.
+Plataforma web do time de jiu-jitsu com:
+- site publico (captacao e contato),
+- area administrativa para professores,
+- API NestJS com persistencia em PostgreSQL.
 
-## Objetivo
-Organizar a base tecnica e evoluir por fases, com entregas versionadas de frontend, backend, dados e infraestrutura.
+## Estado atual do projeto
 
-## Arquitetura proposta
-- Frontend: Next.js 14 + React + Tailwind CSS
-- Backend: NestJS + JWT + Passport + Prisma ORM
-- Banco de dados: PostgreSQL
-- Infraestrutura: Docker Compose + Nginx + SSL (Certbot) + GitHub Actions
+### Entregue nesta fase
+- Frontend publico implementado: `/`, `/sobre`, `/modalidades`, `/galeria`, `/contato`.
+- Frontend administrativo implementado: `/adm/login`, `/adm/dashboard`, `/adm/aulas`, `/adm/presencas`, `/adm/alunos`.
+- Integracao frontend-backend ativa para:
+  - contato publico (`POST /contatos`);
+  - login administrativo com sessao em cookie `httpOnly`;
+  - dashboard com agregacoes reais;
+  - listagem/cancelamento de aulas;
+  - chamada e exportacao CSV de presencas;
+  - cadastro e ativacao/inativacao de alunos.
+- API NestJS modularizada com Prisma e schema inicial das 6 tabelas.
+- Seed inicial com usuario `admin` e `professor`.
 
-## Estrutura do repositorio
+### O que falta para fechar 100% do escopo funcional
+- Fluxo de recuperacao de senha com envio real por e-mail (atualmente token em memoria).
+- Persistencia e revogacao robusta de refresh token (blacklist/rotacao).
+- Telas web para:
+  - gestao administrativa de `contatos` (GET/PATCH),
+  - gestao de `graduacoes` no frontend.
+- Operacoes completas de CRUD na UI de aulas e alunos (atualmente foco no fluxo principal).
+- Testes automatizados de dominio (auth, regras de presenca, cancelamento, status de aluno).
+
+## Stack
+- Frontend: Next.js 14 + TypeScript + Tailwind
+- Backend: NestJS + JWT + Passport
+- Dados: Prisma ORM + PostgreSQL
+- Infra (documentada): Docker Compose + Nginx + SSL + CI/CD
+
+## Estrutura do repositório
 ```text
 .
 |-- apps/
 |   |-- web/
-|   |   `-- src/
-|   |       |-- app/
-|   |       |-- publicas/
-|   |       `-- adm/
 |   `-- api/
 |-- packages/
-|   |-- shared-types/
-|   `-- config/
+|   |-- config/
+|   `-- shared-types/
 |-- docs/
 |   |-- arquitetura/
 |   |-- produto/
@@ -37,43 +57,44 @@ Organizar a base tecnica e evoluir por fases, com entregas versionadas de fronte
 `-- .github/workflows/
 ```
 
-## Rotas atuais do frontend
-### Publicas
-- `/`
-- `/sobre`
-- `/modalidades`
-- `/galeria`
-- `/contato`
+## Como rodar localmente
 
-### Administrativas
-- `/adm` (redireciona para `/adm/dashboard`)
-- `/adm/login`
-- `/adm/dashboard`
-- `/adm/aulas`
-- `/adm/presencas`
-- `/adm/alunos`
+### 1. API
+```bash
+cd apps/api
+npm install
+npm run prisma:generate
+npm run prisma:migrate
+npm run prisma:seed
+npm run start:dev
+```
 
-## Como executar o frontend
+API default: `http://localhost:3001/api/v1`
+
+### 2. Web
 ```bash
 cd apps/web
 npm install
 npm run dev
 ```
 
-## Documentacao
-- Visao da documentacao: [docs/README.md](docs/README.md)
+Web default: `http://localhost:3000`
+
+### 3. Variáveis de ambiente
+- API: `apps/api/.env` com `DATABASE_URL`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `JWT_REFRESH_EXPIRES_IN`, `API_PORT`, `CORS_ORIGINS`.
+- Web: `apps/web/.env.local` com `NEXT_PUBLIC_API_BASE_URL`.
+
+## Documentação
+- Visão geral: [docs/README.md](docs/README.md)
 - Escopo funcional: [docs/produto/escopo-funcional.md](docs/produto/escopo-funcional.md)
-- Banco de dados: [docs/dados/modelo-de-dados.md](docs/dados/modelo-de-dados.md)
-- API e autenticacao: [docs/api/contratos-rest.md](docs/api/contratos-rest.md)
-- Deploy e operacao: [docs/infra/deploy-vps-docker-nginx.md](docs/infra/deploy-vps-docker-nginx.md)
+- Contratos de API: [docs/api/contratos-rest.md](docs/api/contratos-rest.md)
+- Arquitetura frontend: [docs/arquitetura/frontend-web.md](docs/arquitetura/frontend-web.md)
+- Modelo de dados: [docs/dados/modelo-de-dados.md](docs/dados/modelo-de-dados.md)
 - Roadmap: [docs/roadmap/fases-entrega.md](docs/roadmap/fases-entrega.md)
 
-## Estado atual
-- Frontend visual das 5 paginas publicas implementado.
-- Frontend visual das 5 paginas administrativas implementado.
-- Estrutura de dominio separada entre `publicas` e `adm` no `apps/web`.
-- Area `adm` com telas visuais completas e dados mockados (sem autenticacao funcional).
-- Backend/API ainda nao integrados ao frontend nesta fase.
+## Qualidade e validação
+- Web: `npm run lint` e `npm run build`
+- API: `npm run build` e `npm run test -- --runInBand`
 
-## Contribuicao
-Consulte [CONTRIBUTING.md](CONTRIBUTING.md) para fluxo e padrao de commit.
+## Contribuição
+Siga [CONTRIBUTING.md](CONTRIBUTING.md) e o padrão Conventional Commits adotado no projeto.
