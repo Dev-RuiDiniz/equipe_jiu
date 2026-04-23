@@ -185,8 +185,8 @@ export function AdmPresencasPage() {
       ) : (
         <section className="grid gap-5 xl:grid-cols-[1fr,1fr]">
           <article className="section-shell p-5 md:p-6">
-            <p className="text-xs uppercase tracking-[0.16em] text-orange-300">Chamada da aula</p>
-            <h2 className="mt-2 text-2xl font-bold text-white">
+            <p className="eyebrow">Chamada da aula</p>
+            <h2 className="display-font mt-3 text-3xl text-white">
               {selectedAula ? `${selectedAula.titulo} • ${formatDateTime(selectedAula.dataHora)}` : "Selecionar aula"}
             </h2>
 
@@ -209,14 +209,14 @@ export function AdmPresencasPage() {
               {alunos.map((aluno) => {
                 const presente = presentesIds.has(aluno.id);
                 return (
-                  <li key={aluno.id} className="card flex items-center justify-between gap-3 p-3">
+                  <li key={aluno.id} className="adm-card flex items-center justify-between gap-3 p-3">
                     <div>
                       <p className="font-semibold text-white">{aluno.nome}</p>
-                      <p className="text-xs text-slate-400">
+                      <p className="text-xs text-white/45">
                         {aluno.faixa} • {aluno.grau}o grau
                       </p>
                     </div>
-                    <label className="inline-flex items-center gap-2 text-sm text-slate-300">
+                    <label className="inline-flex items-center gap-2 text-sm text-white/72">
                       <input
                         type="checkbox"
                         checked={presente}
@@ -233,25 +233,25 @@ export function AdmPresencasPage() {
           </article>
 
           <article className="section-shell p-5 md:p-6">
-            <p className="text-xs uppercase tracking-[0.16em] text-emerald-300">Resumo da aula</p>
+            <p className="eyebrow">Resumo da aula</p>
             <div className="mt-4 grid gap-3 sm:grid-cols-3">
-              <div className="card p-3">
-                <p className="text-xs uppercase tracking-[0.12em] text-slate-400">Presentes</p>
+              <div className="adm-card p-3">
+                <p className="text-xs uppercase tracking-[0.12em] text-white/45">Presentes</p>
                 <p className="mt-1 text-2xl font-extrabold text-emerald-200">{presentes}</p>
               </div>
-              <div className="card p-3">
-                <p className="text-xs uppercase tracking-[0.12em] text-slate-400">Faltas</p>
-                <p className="mt-1 text-2xl font-extrabold text-orange-200">{faltas}</p>
+              <div className="adm-card p-3">
+                <p className="text-xs uppercase tracking-[0.12em] text-white/45">Faltas</p>
+                <p className="mt-1 text-2xl font-extrabold text-rose-100">{faltas}</p>
               </div>
-              <div className="card p-3">
-                <p className="text-xs uppercase tracking-[0.12em] text-slate-400">Taxa</p>
-                <p className="mt-1 text-2xl font-extrabold text-sky-200">{taxa}%</p>
+              <div className="adm-card p-3">
+                <p className="text-xs uppercase tracking-[0.12em] text-white/45">Taxa</p>
+                <p className="mt-1 text-2xl font-extrabold text-accent">{taxa}%</p>
               </div>
             </div>
 
             {feedback ? <p className="mt-4 text-sm text-emerald-200">{feedback}</p> : null}
 
-            <p className="mt-6 text-xs uppercase tracking-[0.16em] text-orange-300">Historico recente</p>
+            <p className="mt-6 text-xs uppercase tracking-[0.16em] text-accent">Historico recente</p>
             <div className="mt-3">
               {presencas.length === 0 ? (
                 <AdmStatePanel

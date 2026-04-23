@@ -14,45 +14,45 @@ const canais = [
 
 export function ContatoPage() {
   return (
-    <PublicShell eyebrow="Pagina Publica" title="Comece seu treino com uma aula experimental.">
-      <section className="grid gap-5 md:grid-cols-[1.1fr,0.9fr]">
-        <article className="section-shell p-6 md:p-8">
-          <p className="text-xs uppercase tracking-[0.18em] text-orange-300">Formulario visual</p>
-          <h2 className="mt-2 text-3xl font-extrabold text-white">Contato e inscricao</h2>
+    <PublicShell eyebrow="Contato" title="Entre no time com uma aula experimental guiada.">
+      <section className="grid gap-6 lg:grid-cols-[1.05fr,0.95fr]">
+        <article className="section-shell px-6 py-8 md:px-8">
+          <p className="eyebrow">Formulario visual</p>
+          <h2 className="display-font mt-3 text-4xl text-white md:text-5xl">Inscricao e primeiro contato</h2>
           <ContatoForm />
         </article>
 
-        <aside className="space-y-5">
-          <article className="section-shell p-6">
-            <p className="text-xs uppercase tracking-[0.18em] text-emerald-300">Canais de atendimento</p>
-            <ul className="mt-4 space-y-3">
+        <aside className="space-y-6">
+          <article className="section-shell px-6 py-8 md:px-8">
+            <p className="eyebrow">Canais de atendimento</p>
+            <div className="mt-6 space-y-4">
               {canais.map((canal) => (
-                <li key={canal.titulo} className="card p-4">
-                  <p className="text-xs uppercase tracking-[0.16em] text-slate-400">{canal.titulo}</p>
-                  <p className="mt-1 text-xl font-bold text-white">{canal.valor}</p>
-                  <p className="mt-1 text-sm text-slate-300">{canal.detalhe}</p>
-                </li>
+                <div key={canal.titulo} className="card px-5 py-5">
+                  <p className="text-xs font-black uppercase tracking-[0.18em] text-accent">{canal.titulo}</p>
+                  <p className="mt-2 text-xl font-bold text-white">{canal.valor}</p>
+                  <p className="mt-1 text-sm text-white/62">{canal.detalhe}</p>
+                </div>
               ))}
-            </ul>
+            </div>
           </article>
 
-          <article className="section-shell p-6">
-            <p className="text-xs uppercase tracking-[0.18em] text-emerald-300">Horarios</p>
-            <p className="mt-2 text-2xl font-bold text-white">Seg a Sex: 06h-22h</p>
-            <p className="text-slate-300">Sabado: 08h-13h</p>
-            <div className="mt-4 rounded-2xl border border-emerald-300/35 bg-emerald-300/10 p-4 text-emerald-100">
-              Novos alunos recebem roteiro de inicio e aula experimental guiada.
+          <article className="section-shell watermark-bull px-6 py-8 md:px-8">
+            <p className="eyebrow">Horarios</p>
+            <p className="display-font mt-3 text-4xl text-white">Seg a Sex: 06h-22h</p>
+            <p className="mt-2 text-white/68">Sabado: 08h-13h</p>
+            <div className="mt-5 rounded-[22px] border border-secondary/22 bg-secondary/12 px-5 py-4 text-sm leading-7 text-white/85">
+              Novos alunos recebem roteiro de inicio, apresentação da equipe e aula experimental guiada.
             </div>
-            <Link href="/modalidades" className="mt-4 inline-flex text-sm font-semibold text-orange-200 underline">
+            <Link href="/modalidades" className="btn-outline mt-5">
               Ver modalidades antes de agendar
             </Link>
           </article>
         </aside>
       </section>
 
-      <section className="section-shell p-4 md:p-6">
-        <p className="px-2 text-xs uppercase tracking-[0.18em] text-orange-300">Mapa (placeholder)</p>
-        <div className="mt-3 overflow-hidden rounded-2xl border border-slate-700">
+      <section className="section-shell px-4 py-4 md:px-6 md:py-6">
+        <p className="eyebrow px-2">Mapa</p>
+        <div className="mt-4 overflow-hidden rounded-[28px] border border-accent/18">
           <iframe
             title="Mapa da academia"
             src={mapasrc}

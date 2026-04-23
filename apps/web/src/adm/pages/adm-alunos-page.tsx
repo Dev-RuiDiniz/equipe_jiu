@@ -120,8 +120,8 @@ export function AdmAlunosPage() {
     >
       <section className="grid gap-5 xl:grid-cols-[1fr,1fr]">
         <article className="section-shell p-5 md:p-6">
-          <p className="text-xs uppercase tracking-[0.16em] text-orange-300">Ficha do aluno</p>
-          <h2 className="mt-2 text-2xl font-bold text-white">Cadastro funcional</h2>
+          <p className="eyebrow">Ficha do aluno</p>
+          <h2 className="display-font mt-3 text-3xl text-white">Cadastro funcional</h2>
 
           <form className="mt-5 grid gap-4" onSubmit={(event) => void handleSubmit(event)}>
             <div className="grid gap-4 md:grid-cols-2">
@@ -171,21 +171,21 @@ export function AdmAlunosPage() {
         </article>
 
         <article className="section-shell p-5 md:p-6">
-          <p className="text-xs uppercase tracking-[0.16em] text-emerald-300">Acompanhamento</p>
-          <h2 className="mt-2 text-2xl font-bold text-white">Resumo de alunos</h2>
+          <p className="eyebrow">Acompanhamento</p>
+          <h2 className="display-font mt-3 text-3xl text-white">Resumo de alunos</h2>
 
           <div className="mt-5 grid gap-3 sm:grid-cols-3">
-            <div className="card p-3">
-              <p className="text-xs uppercase tracking-[0.12em] text-slate-400">Ativos</p>
+            <div className="adm-card p-3">
+              <p className="text-xs uppercase tracking-[0.12em] text-white/45">Ativos</p>
               <p className="mt-1 text-2xl font-extrabold text-emerald-200">{ativos}</p>
             </div>
-            <div className="card p-3">
-              <p className="text-xs uppercase tracking-[0.12em] text-slate-400">Inativos</p>
+            <div className="adm-card p-3">
+              <p className="text-xs uppercase tracking-[0.12em] text-white/45">Inativos</p>
               <p className="mt-1 text-2xl font-extrabold text-slate-200">{inativos}</p>
             </div>
-            <div className="card p-3">
-              <p className="text-xs uppercase tracking-[0.12em] text-slate-400">Total</p>
-              <p className="mt-1 text-2xl font-extrabold text-sky-200">{alunos.length}</p>
+            <div className="adm-card p-3">
+              <p className="text-xs uppercase tracking-[0.12em] text-white/45">Total</p>
+              <p className="mt-1 text-2xl font-extrabold text-accent">{alunos.length}</p>
             </div>
           </div>
 
@@ -226,7 +226,7 @@ export function AdmAlunosPage() {
                     <div className="flex flex-wrap gap-2">
                       <button
                         type="button"
-                        className="rounded-full border border-orange-300/40 px-2.5 py-1 text-xs font-semibold text-orange-200 disabled:opacity-50"
+                        className="rounded-full border border-accent/30 px-2.5 py-1 text-xs font-semibold text-accent disabled:opacity-50"
                         onClick={() => void toggleStatus(aluno)}
                         disabled={isSaving}
                       >

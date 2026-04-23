@@ -17,7 +17,7 @@ const itens: Midia[] = [
   { id: 3, titulo: "Treino kids", evento: "Treino", ano: "2025", destaque: "Coordenacao e base" },
   { id: 4, titulo: "Open regional", evento: "Campeonato", ano: "2024", destaque: "Bronze master" },
   { id: 5, titulo: "Drills de passagem", evento: "Treino", ano: "2024", destaque: "Volume alto" },
-  { id: 6, titulo: "Pódio por equipes", evento: "Campeonato", ano: "2026", destaque: "Top 3 geral" },
+  { id: 6, titulo: "Podio por equipes", evento: "Campeonato", ano: "2026", destaque: "Top 3 geral" },
 ];
 
 const filtrosAno = ["Todos", "2024", "2025", "2026"] as const;
@@ -37,24 +37,31 @@ export function GaleriaPage() {
   }, [ano, evento]);
 
   return (
-    <PublicShell eyebrow="Pagina Publica" title="Memoria de treino, prova e resultado.">
-      <section className="section-shell p-6 md:p-8">
-        <p className="text-xs uppercase tracking-[0.18em] text-orange-300">Filtros</p>
-        <h2 className="mt-2 text-3xl font-extrabold text-white">Galeria e resultados da equipe</h2>
-
-        <div className="mt-6 grid gap-4 md:grid-cols-2">
+    <PublicShell eyebrow="Memoria da equipe" title="Treino, prova e resultado registrados com linguagem de marca.">
+      <section className="section-shell px-6 py-8 md:px-8">
+        <div className="grid gap-6 md:grid-cols-2">
           <div>
-            <p className="text-sm font-semibold text-slate-300">Ano</p>
-            <div className="mt-2 flex flex-wrap gap-2">
+            <p className="eyebrow">Filtros</p>
+            <h2 className="display-font mt-3 text-4xl text-white md:text-5xl">Galeria e resultados</h2>
+          </div>
+          <p className="text-sm leading-7 text-white/62">
+            O grid prioriza leitura, contraste e presença do escudo, com overlay escuro e zoom controlado no hover.
+          </p>
+        </div>
+
+        <div className="mt-8 grid gap-4 md:grid-cols-2">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-accent">Ano</p>
+            <div className="mt-3 flex flex-wrap gap-2">
               {filtrosAno.map((filtro) => (
                 <button
                   type="button"
                   key={filtro}
                   onClick={() => setAno(filtro)}
-                  className={`rounded-full border px-3 py-1.5 text-sm font-semibold transition ${
+                  className={`rounded-full border px-4 py-2 text-xs font-black uppercase tracking-[0.18em] transition ${
                     ano === filtro
-                      ? "border-orange-300 bg-orange-300/20 text-orange-100"
-                      : "border-slate-600 bg-slate-900/60 text-slate-300 hover:border-slate-400"
+                      ? "border-accent/45 bg-accent/12 text-accent"
+                      : "border-white/10 bg-white/5 text-white/68 hover:border-accent/22 hover:text-accent"
                   }`}
                 >
                   {filtro}
@@ -64,17 +71,17 @@ export function GaleriaPage() {
           </div>
 
           <div>
-            <p className="text-sm font-semibold text-slate-300">Evento</p>
-            <div className="mt-2 flex flex-wrap gap-2">
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-accent">Evento</p>
+            <div className="mt-3 flex flex-wrap gap-2">
               {filtrosEvento.map((filtro) => (
                 <button
                   type="button"
                   key={filtro}
                   onClick={() => setEvento(filtro)}
-                  className={`rounded-full border px-3 py-1.5 text-sm font-semibold transition ${
+                  className={`rounded-full border px-4 py-2 text-xs font-black uppercase tracking-[0.18em] transition ${
                     evento === filtro
-                      ? "border-emerald-300 bg-emerald-300/20 text-emerald-100"
-                      : "border-slate-600 bg-slate-900/60 text-slate-300 hover:border-slate-400"
+                      ? "border-secondary/50 bg-secondary/16 text-white"
+                      : "border-white/10 bg-white/5 text-white/68 hover:border-secondary/24 hover:text-white"
                   }`}
                 >
                   {filtro}
@@ -85,21 +92,25 @@ export function GaleriaPage() {
         </div>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-3">
+      <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
         {filtrados.map((item) => (
           <button
             type="button"
             key={item.id}
             onClick={() => setAtivo(item)}
-            className="section-shell overflow-hidden text-left transition hover:-translate-y-1"
+            className="group section-shell overflow-hidden p-0 text-left"
           >
-            <div className="h-44 bg-gradient-to-br from-[#253d64] via-[#1f1a33] to-[#203c34]" />
-            <div className="p-4">
-              <p className="text-xs uppercase tracking-[0.16em] text-orange-200">
-                {item.evento} • {item.ano}
-              </p>
-              <h3 className="mt-2 text-xl font-bold text-white">{item.titulo}</h3>
-              <p className="mt-1 text-sm text-slate-300">{item.destaque}</p>
+            <div className="relative h-64 overflow-hidden">
+              <div className="absolute inset-0 bg-[url('/shield-badge.jpeg')] bg-cover bg-center opacity-20 transition duration-500 group-hover:scale-110" />
+              <div className="absolute inset-0 bg-[url('/bull-support.jpeg')] bg-cover bg-center opacity-[0.09] transition duration-500 group-hover:scale-110" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent" />
+              <div className="absolute bottom-5 left-5 right-5">
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-accent">
+                  {item.evento} • {item.ano}
+                </p>
+                <h3 className="display-font mt-3 text-3xl text-white">{item.titulo}</h3>
+                <p className="mt-2 text-sm text-white/65">{item.destaque}</p>
+              </div>
             </div>
           </button>
         ))}
@@ -109,22 +120,22 @@ export function GaleriaPage() {
         <div
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 px-4"
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/92 px-4"
         >
-          <div className="w-full max-w-3xl rounded-3xl border border-white/10 bg-[#11192b] p-5 md:p-8">
+          <div className="section-shell w-full max-w-4xl px-6 py-6 md:px-8">
             <div className="flex items-center justify-between gap-4">
-              <p className="text-xs uppercase tracking-[0.18em] text-orange-200">Lightbox visual</p>
-              <button
-                type="button"
-                onClick={() => setAtivo(null)}
-                className="rounded-full border border-slate-500 px-3 py-1 text-sm text-slate-200"
-              >
+              <div>
+                <p className="eyebrow">Lightbox visual</p>
+                <h3 className="display-font mt-2 text-4xl text-white">{ativo.titulo}</h3>
+              </div>
+              <button type="button" onClick={() => setAtivo(null)} className="btn-ghost">
                 Fechar
               </button>
             </div>
-            <div className="mt-4 h-72 rounded-2xl bg-gradient-to-br from-[#253d64] via-[#1f1a33] to-[#203c34]" />
-            <h3 className="mt-5 text-3xl font-extrabold text-white">{ativo.titulo}</h3>
-            <p className="mt-2 text-slate-300">
+            <div className="mt-6 overflow-hidden rounded-[28px] border border-accent/18 bg-black">
+              <div className="h-[420px] bg-[url('/shield-badge.jpeg')] bg-cover bg-center opacity-35" />
+            </div>
+            <p className="mt-5 text-sm leading-7 text-white/70">
               {ativo.evento} • {ativo.ano} • {ativo.destaque}
             </p>
           </div>

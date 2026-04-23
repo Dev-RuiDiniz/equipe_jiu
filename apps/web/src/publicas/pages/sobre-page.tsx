@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { PublicShell } from "@/publicas/components/public-shell";
 
 const professores = [
@@ -30,80 +31,81 @@ const marcos = [
 
 export function SobrePage() {
   return (
-    <PublicShell eyebrow="Pagina Publica" title="Uma equipe construida no detalhe de cada treino.">
-      <section className="section-shell grid gap-6 p-6 md:grid-cols-[1.2fr,0.8fr] md:p-8">
-        <div>
-          <p className="text-xs uppercase tracking-[0.18em] text-orange-300">Nossa historia</p>
-          <h2 className="mt-2 text-3xl font-extrabold text-white">Do bairro para o circuito competitivo</h2>
-          <p className="mt-4 max-w-2xl text-slate-300">
-            A Equipe Jiu nasceu para combinar formacao tecnica de alto nivel com uma cultura de treino
-            consistente. O objetivo sempre foi simples: evolucao real para quem entra no tatame.
+    <PublicShell eyebrow="Institucional" title="O escudo representa ordem, hierarquia e comunidade.">
+      <section className="grid gap-6 lg:grid-cols-[1.1fr,0.9fr]">
+        <article className="section-shell watermark-shield px-6 py-8 md:px-8">
+          <p className="eyebrow">Nossa historia</p>
+          <h2 className="display-font mt-3 text-4xl text-white md:text-5xl">Do bairro para o circuito competitivo</h2>
+          <p className="mt-5 max-w-2xl text-base leading-8 text-white/70">
+            A Equipe Jiu nasceu para unir formação técnica séria, progressão clara e um senso de pertencimento visível
+            em cada detalhe do ambiente. Aqui o time é maior do que o indivíduo, e isso começa pela cultura.
           </p>
-
-          <ul className="mt-6 space-y-3">
+          <div className="mt-8 grid gap-4">
             {marcos.map((marco) => (
-              <li key={marco} className="card p-4 text-slate-200">
+              <div key={marco} className="card px-5 py-5 text-sm font-semibold uppercase tracking-[0.14em] text-white/78">
                 {marco}
-              </li>
+              </div>
             ))}
-          </ul>
-        </div>
+          </div>
+        </article>
 
-        <aside className="card p-5 md:p-6">
-          <p className="text-xs uppercase tracking-[0.18em] text-emerald-300">Indicadores</p>
-          <dl className="mt-4 grid grid-cols-2 gap-3">
-            <div className="rounded-xl bg-[#0f1627] p-3">
-              <dt className="text-xs uppercase tracking-[0.14em] text-slate-400">Alunos</dt>
-              <dd className="mt-1 text-3xl font-extrabold">120+</dd>
-            </div>
-            <div className="rounded-xl bg-[#0f1627] p-3">
-              <dt className="text-xs uppercase tracking-[0.14em] text-slate-400">Anos</dt>
-              <dd className="mt-1 text-3xl font-extrabold">9</dd>
-            </div>
-            <div className="rounded-xl bg-[#0f1627] p-3">
-              <dt className="text-xs uppercase tracking-[0.14em] text-slate-400">Medalhas</dt>
-              <dd className="mt-1 text-3xl font-extrabold">54</dd>
-            </div>
-            <div className="rounded-xl bg-[#0f1627] p-3">
-              <dt className="text-xs uppercase tracking-[0.14em] text-slate-400">Professores</dt>
-              <dd className="mt-1 text-3xl font-extrabold">6</dd>
-            </div>
-          </dl>
+        <aside className="section-shell overflow-hidden px-6 py-8 md:px-8">
+          <div className="relative h-64 overflow-hidden rounded-[28px] border border-accent/20">
+            <Image src="/shield-badge.jpeg" alt="Escudo da equipe" fill sizes="(max-width: 768px) 100vw, 420px" className="object-cover" />
+            <div className="absolute inset-0 bg-black/35" />
+          </div>
+          <div className="mt-6 grid grid-cols-2 gap-4">
+            {[
+              { label: "Alunos", value: "120+" },
+              { label: "Anos", value: "9" },
+              { label: "Medalhas", value: "54" },
+              { label: "Professores", value: "6" },
+            ].map((item) => (
+              <div key={item.label} className="card px-4 py-4">
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-white/45">{item.label}</p>
+                <p className="display-font mt-2 text-4xl text-white">{item.value}</p>
+              </div>
+            ))}
+          </div>
         </aside>
-      </section>
-
-      <section className="section-shell p-6 md:p-8">
-        <p className="text-xs uppercase tracking-[0.18em] text-orange-300">Professores e graduacao</p>
-        <h2 className="mt-2 text-3xl font-extrabold text-white">Referencia tecnica dentro e fora da academia</h2>
-        <div className="mt-6 grid gap-4 md:grid-cols-3">
-          {professores.map((professor) => (
-            <article key={professor.nome} className="card p-4">
-              <div className="h-36 rounded-xl bg-gradient-to-br from-orange-500/35 to-emerald-400/30" />
-              <h3 className="mt-4 text-xl font-bold text-white">{professor.nome}</h3>
-              <p className="text-sm font-semibold text-orange-200">{professor.faixa}</p>
-              <p className="mt-2 text-sm text-slate-300">{professor.foco}</p>
-            </article>
-          ))}
-        </div>
       </section>
 
       <section className="grid gap-4 md:grid-cols-3">
         {valores.map((valor) => (
-          <article key={valor.titulo} className="section-shell p-5">
-            <p className="text-xs uppercase tracking-[0.16em] text-emerald-300">Valor</p>
-            <h3 className="mt-2 text-2xl font-bold text-white">{valor.titulo}</h3>
-            <p className="mt-3 text-slate-300">{valor.descricao}</p>
+          <article key={valor.titulo} className="section-shell px-5 py-6">
+            <p className="eyebrow">Valor da equipe</p>
+            <h3 className="display-font mt-3 text-3xl text-white">{valor.titulo}</h3>
+            <p className="mt-4 text-sm leading-7 text-white/68">{valor.descricao}</p>
           </article>
         ))}
       </section>
 
-      <section className="section-shell p-6 md:p-8">
-        <p className="text-xs uppercase tracking-[0.18em] text-orange-300">Ambiente de treino</p>
-        <h2 className="mt-2 text-3xl font-extrabold text-white">Estrutura pensada para evolucao constante</h2>
-        <div className="mt-6 grid gap-4 md:grid-cols-3">
-          <div className="h-44 rounded-2xl bg-gradient-to-br from-[#1d2d47] to-[#101726]" />
-          <div className="h-44 rounded-2xl bg-gradient-to-br from-[#2f1f17] to-[#141726]" />
-          <div className="h-44 rounded-2xl bg-gradient-to-br from-[#1b382c] to-[#101726]" />
+      <section className="section-shell px-6 py-8 md:px-8">
+        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="eyebrow">Professores</p>
+            <h2 className="display-font mt-3 text-4xl text-white md:text-5xl">Lideranca técnica da equipe</h2>
+          </div>
+          <p className="max-w-xl text-sm leading-7 text-white/62">
+            Cards inspirados no escudo para transmitir autoridade, organização e consistência visual.
+          </p>
+        </div>
+        <div className="mt-8 grid gap-5 md:grid-cols-3">
+          {professores.map((professor) => (
+            <article key={professor.nome} className="card overflow-hidden">
+              <div className="relative h-48 bg-black">
+                <Image src="/shield-badge.jpeg" alt="" fill sizes="(max-width: 768px) 100vw, 360px" className="object-cover opacity-30" />
+                <div className="absolute inset-0 bg-gradient-to-b from-accent/10 via-transparent to-black/90" />
+                <div className="absolute left-5 top-5 rounded-full border border-accent/30 bg-black/65 px-3 py-1 text-[11px] font-black uppercase tracking-[0.22em] text-accent">
+                  {professor.faixa}
+                </div>
+              </div>
+              <div className="px-5 py-5">
+                <h3 className="display-font text-3xl text-white">{professor.nome}</h3>
+                <p className="mt-3 text-sm leading-7 text-white/70">{professor.foco}</p>
+              </div>
+            </article>
+          ))}
         </div>
       </section>
     </PublicShell>

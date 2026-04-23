@@ -102,7 +102,7 @@ export function AdmAulasPage() {
       }
     >
       <section className="section-shell p-5 md:p-6">
-        <p className="text-xs uppercase tracking-[0.16em] text-orange-300">Filtros rapidos</p>
+        <p className="eyebrow">Filtros rapidos</p>
         <div className="mt-4 grid gap-4 md:grid-cols-4">
           <AdmSelectInput
             label="Modalidade"
@@ -129,8 +129,8 @@ export function AdmAulasPage() {
       </section>
 
       <section className="mt-6 section-shell p-5 md:p-6">
-        <p className="text-xs uppercase tracking-[0.16em] text-emerald-300">Grade operacional</p>
-        <h2 className="mt-2 text-2xl font-bold text-white">Aulas cadastradas</h2>
+        <p className="eyebrow">Grade operacional</p>
+        <h2 className="display-font mt-3 text-3xl text-white">Aulas cadastradas</h2>
 
         <div className="mt-5">
           {isLoading ? (
@@ -169,7 +169,7 @@ export function AdmAulasPage() {
                   <div className="flex flex-wrap gap-2">
                     <button
                       type="button"
-                      className="rounded-full border border-orange-300/40 px-2.5 py-1 text-xs font-semibold text-orange-200 disabled:opacity-50"
+                      className="rounded-full border border-secondary/40 px-2.5 py-1 text-xs font-semibold text-rose-100 disabled:opacity-50"
                       onClick={() => void handleCancelar(aula.id)}
                       disabled={aula.cancelada || isMutating}
                     >

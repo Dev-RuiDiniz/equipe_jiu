@@ -126,8 +126,8 @@ export function AdmDashboardPage() {
 
           <section className="mt-6 grid gap-5 xl:grid-cols-[1.2fr,0.8fr]">
             <article className="section-shell p-5 md:p-6">
-              <p className="text-xs uppercase tracking-[0.16em] text-orange-300">Frequencia mensal</p>
-              <h2 className="mt-2 text-2xl font-bold text-white">Registros de presenca por mes</h2>
+              <p className="eyebrow">Frequencia mensal</p>
+              <h2 className="display-font mt-3 text-3xl text-white">Registros de presenca por mes</h2>
 
               {frequencia.length === 0 ? (
                 <div className="mt-5">
@@ -138,17 +138,17 @@ export function AdmDashboardPage() {
                   />
                 </div>
               ) : (
-                <div className="mt-6 grid h-56 grid-cols-6 items-end gap-3 rounded-2xl border border-white/10 bg-[#0f1628] p-4">
+                <div className="mt-6 grid h-56 grid-cols-6 items-end gap-3 rounded-[24px] border border-accent/12 bg-black/35 p-4">
                   {frequencia.map((item) => {
                     const height = Math.max((item.totalPresencas / maxPresencas) * 100, 6);
                     return (
                       <div key={item.mes} className="group flex h-full flex-col items-center justify-end gap-2">
                         <div
-                          className="w-full rounded-md bg-gradient-to-t from-orange-500 to-emerald-300/80"
+                          className="w-full rounded-md bg-gradient-to-t from-[#a87b10] via-[#fbc02d] to-[#ffe08b]"
                           style={{ height: `${height}%` }}
                           aria-label={`${item.mes}: ${item.totalPresencas} presencas`}
                         />
-                        <p className="text-[11px] uppercase tracking-[0.08em] text-slate-300">
+                        <p className="text-[11px] uppercase tracking-[0.08em] text-white/62">
                           {formatMonthLabel(item.mes)}
                         </p>
                       </div>
@@ -159,8 +159,8 @@ export function AdmDashboardPage() {
             </article>
 
             <article className="section-shell p-5 md:p-6">
-              <p className="text-xs uppercase tracking-[0.16em] text-emerald-300">Proximas aulas</p>
-              <h2 className="mt-2 text-2xl font-bold text-white">Agenda operacional</h2>
+              <p className="eyebrow">Proximas aulas</p>
+              <h2 className="display-font mt-3 text-3xl text-white">Agenda operacional</h2>
 
               {proximasAulas.length === 0 ? (
                 <div className="mt-5">
@@ -173,11 +173,11 @@ export function AdmDashboardPage() {
               ) : (
                 <ul className="mt-4 space-y-3">
                   {proximasAulas.map((aula) => (
-                    <li key={aula.id} className="card p-4">
+                    <li key={aula.id} className="adm-card p-4">
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>
                           <p className="font-semibold text-white">{aula.titulo}</p>
-                          <p className="text-sm text-slate-300">
+                          <p className="text-sm text-white/66">
                             {formatDateTime(aula.dataHora)} • {aula.modalidade}
                           </p>
                         </div>
@@ -191,23 +191,23 @@ export function AdmDashboardPage() {
           </section>
 
           <section className="mt-6 section-shell p-5 md:p-6">
-            <p className="text-xs uppercase tracking-[0.16em] text-orange-300">Alertas operacionais</p>
-            <h2 className="mt-2 text-2xl font-bold text-white">Indicadores de acompanhamento</h2>
+            <p className="eyebrow">Alertas operacionais</p>
+            <h2 className="display-font mt-3 text-3xl text-white">Indicadores de acompanhamento</h2>
             <div className="mt-4 grid gap-3 md:grid-cols-3">
-              <article className="card p-4">
+              <article className="adm-card p-4">
                 <p className="font-semibold text-white">Alertas de graduacao</p>
-                <p className="text-sm text-slate-300">Alunos sem graduacao recente</p>
-                <p className="mt-2 text-sm text-amber-200">{resumo?.alertasGraduacao ?? 0} sinalizados</p>
+                <p className="text-sm text-white/62">Alunos sem graduacao recente</p>
+                <p className="mt-2 text-sm text-accent">{resumo?.alertasGraduacao ?? 0} sinalizados</p>
               </article>
-              <article className="card p-4">
+              <article className="adm-card p-4">
                 <p className="font-semibold text-white">Presencas da semana</p>
-                <p className="text-sm text-slate-300">Percentual de participacao geral</p>
+                <p className="text-sm text-white/62">Percentual de participacao geral</p>
                 <p className="mt-2 text-sm text-emerald-200">{resumo?.presencaMediaSemana ?? 0}% de media</p>
               </article>
-              <article className="card p-4">
+              <article className="adm-card p-4">
                 <p className="font-semibold text-white">Agenda futura</p>
-                <p className="text-sm text-slate-300">Aulas confirmadas na fila</p>
-                <p className="mt-2 text-sm text-sky-200">{resumo?.proximasAulas ?? 0} aulas programadas</p>
+                <p className="text-sm text-white/62">Aulas confirmadas na fila</p>
+                <p className="mt-2 text-sm text-accent">{resumo?.proximasAulas ?? 0} aulas programadas</p>
               </article>
             </div>
           </section>

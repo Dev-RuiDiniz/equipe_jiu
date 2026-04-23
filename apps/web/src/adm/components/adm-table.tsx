@@ -16,11 +16,11 @@ type AdmTableProps = {
 export function AdmTable({ columns, rows }: AdmTableProps) {
   return (
     <div className="overflow-x-auto">
-      <table className="w-full min-w-[760px] border-separate border-spacing-y-2">
+      <table className="adm-table">
         <thead>
-          <tr className="text-left text-xs uppercase tracking-[0.16em] text-slate-400">
+          <tr>
             {columns.map((column) => (
-              <th key={column.key} className={`px-3 py-2 ${column.className ?? ""}`}>
+              <th key={column.key} className={column.className ?? ""}>
                 {column.label}
               </th>
             ))}
@@ -28,11 +28,11 @@ export function AdmTable({ columns, rows }: AdmTableProps) {
         </thead>
         <tbody>
           {rows.map((row, index) => (
-            <tr key={index} className="card text-sm text-slate-100">
+            <tr key={index} className="text-sm text-slate-100">
               {columns.map((column, colIndex) => (
                 <td
                   key={column.key}
-                  className={`px-3 py-3 ${colIndex === 0 ? "rounded-l-xl" : ""} ${
+                  className={`${colIndex === 0 ? "rounded-l-xl" : ""} ${
                     colIndex === columns.length - 1 ? "rounded-r-xl" : ""
                   } ${column.className ?? ""}`}
                 >

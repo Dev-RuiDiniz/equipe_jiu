@@ -11,7 +11,7 @@ type ContatoPayload = {
 };
 
 const inputClass =
-  'rounded-xl border border-slate-600 bg-[#111a2b] px-3 py-3 text-slate-100 outline-none ring-orange-300/70 transition focus:ring';
+  "form-input";
 
 export function ContatoForm() {
   const [loading, setLoading] = useState(false);
@@ -49,18 +49,18 @@ export function ContatoForm() {
   }
 
   return (
-    <form className="mt-6 grid gap-4" onSubmit={onSubmit}>
-      <label className="grid gap-2 text-sm font-semibold text-slate-200">
+    <form className="mt-8 grid gap-5" onSubmit={onSubmit}>
+      <label className="grid gap-2 text-sm font-semibold text-white/84">
         Nome
         <input className={inputClass} type="text" name="nome" placeholder="Seu nome completo" required />
       </label>
 
-      <label className="grid gap-2 text-sm font-semibold text-slate-200">
+      <label className="grid gap-2 text-sm font-semibold text-white/84">
         E-mail
         <input className={inputClass} type="email" name="email" placeholder="voce@email.com" required />
       </label>
 
-      <label className="grid gap-2 text-sm font-semibold text-slate-200">
+      <label className="grid gap-2 text-sm font-semibold text-white/84">
         Modalidade de interesse
         <select className={inputClass} name="interesse" defaultValue="">
           <option value="" disabled>
@@ -72,10 +72,10 @@ export function ContatoForm() {
         </select>
       </label>
 
-      <label className="grid gap-2 text-sm font-semibold text-slate-200">
+      <label className="grid gap-2 text-sm font-semibold text-white/84">
         Mensagem
         <textarea
-          className="min-h-32 rounded-xl border border-slate-600 bg-[#111a2b] px-3 py-3 text-slate-100 outline-none ring-orange-300/70 transition focus:ring"
+          className="form-input min-h-32"
           name="mensagem"
           placeholder="Conte seu objetivo no jiu-jitsu"
           required
@@ -91,8 +91,8 @@ export function ContatoForm() {
         </a>
       </div>
 
-      {success ? <p className="rounded-xl border border-emerald-300/40 bg-emerald-300/10 px-3 py-2 text-sm text-emerald-100">{success}</p> : null}
-      {error ? <p className="rounded-xl border border-rose-300/40 bg-rose-300/10 px-3 py-2 text-sm text-rose-100">{error}</p> : null}
+      {success ? <p className="rounded-[18px] border border-emerald-300/40 bg-emerald-300/10 px-4 py-3 text-sm text-emerald-100">{success}</p> : null}
+      {error ? <p className="rounded-[18px] border border-rose-300/40 bg-rose-300/10 px-4 py-3 text-sm text-rose-100">{error}</p> : null}
     </form>
   );
 }

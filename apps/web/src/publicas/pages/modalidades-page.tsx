@@ -28,49 +28,51 @@ const grade = [
 ];
 
 const sistemaFaixas = [
-  { faixa: "Branca", tempo: "6-18 meses", foco: "Base, defesa e posicoes" },
-  { faixa: "Azul", tempo: "2-3 anos", foco: "Transicoes e controle" },
-  { faixa: "Roxa", tempo: "1,5-2 anos", foco: "Ataque encadeado" },
-  { faixa: "Marrom", tempo: "1-2 anos", foco: "Refino e consistencia" },
-  { faixa: "Preta", tempo: "Longo prazo", foco: "Mestria tecnica" },
+  { faixa: "Branca", tempo: "6-18 meses", foco: "Base, defesa e posicoes", destaque: "bg-white text-black" },
+  { faixa: "Azul", tempo: "2-3 anos", foco: "Transicoes e controle", destaque: "bg-sky-500 text-white" },
+  { faixa: "Roxa", tempo: "1,5-2 anos", foco: "Ataque encadeado", destaque: "bg-violet-600 text-white" },
+  { faixa: "Marrom", tempo: "1-2 anos", foco: "Refino e consistencia", destaque: "bg-amber-800 text-white" },
+  { faixa: "Preta", tempo: "Longo prazo", foco: "Mestria tecnica", destaque: "bg-black text-white border border-white/20" },
 ];
 
 export function ModalidadesPage() {
   return (
-    <PublicShell eyebrow="Pagina Publica" title="Treinos desenhados por objetivo e nivel.">
+    <PublicShell eyebrow="Treinos" title="Turmas desenhadas para evolução real em cada fase do caminho.">
       <section className="grid gap-4 md:grid-cols-3">
         {modalidades.map((item) => (
-          <article key={item.nome} className="section-shell p-5">
-            <p className="text-xs uppercase tracking-[0.18em] text-orange-300">Modalidade</p>
-            <h2 className="mt-2 text-3xl font-extrabold text-white">{item.nome}</h2>
-            <p className="mt-3 text-slate-300">{item.descricao}</p>
-            <p className="mt-4 rounded-full border border-emerald-300/30 bg-emerald-300/10 px-3 py-1 text-sm text-emerald-200">
+          <article key={item.nome} className="section-shell px-5 py-6">
+            <p className="eyebrow">Modalidade</p>
+            <h2 className="display-font mt-3 text-4xl text-white">{item.nome}</h2>
+            <p className="mt-4 text-sm leading-7 text-white/70">{item.descricao}</p>
+            <p className="mt-5 inline-flex rounded-full border border-accent/24 bg-accent/10 px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-accent">
               Publico: {item.publico}
             </p>
           </article>
         ))}
       </section>
 
-      <section className="section-shell p-6 md:p-8">
-        <p className="text-xs uppercase tracking-[0.18em] text-orange-300">Grade semanal</p>
-        <h2 className="mt-2 text-3xl font-extrabold text-white">Tabela de horarios por turma</h2>
-        <div className="mt-6 overflow-x-auto">
-          <table className="w-full min-w-[620px] border-separate border-spacing-y-2">
+      <section className="section-shell px-6 py-8 md:px-8">
+        <p className="eyebrow">Grade semanal</p>
+        <h2 className="display-font mt-3 text-4xl text-white md:text-5xl">Tabela de horarios</h2>
+        <div className="mt-6 overflow-x-auto rounded-[24px] border border-accent/12 bg-black/30 p-2 md:p-4">
+          <table className="schedule-table">
             <thead>
-              <tr className="text-left text-xs uppercase tracking-[0.16em] text-slate-400">
-                <th className="px-3 py-2">Dia</th>
-                <th className="px-3 py-2">Adulto</th>
-                <th className="px-3 py-2">Kids</th>
-                <th className="px-3 py-2">Competicao</th>
+              <tr>
+                <th>Dia</th>
+                <th>Adulto</th>
+                <th>Kids</th>
+                <th>Competicao</th>
               </tr>
             </thead>
             <tbody>
               {grade.map((linha) => (
-                <tr key={linha.dia} className="card text-slate-100">
-                  <td className="rounded-l-xl px-3 py-3 font-semibold">{linha.dia}</td>
-                  <td className="px-3 py-3">{linha.adulto}</td>
-                  <td className="px-3 py-3">{linha.kids}</td>
-                  <td className="rounded-r-xl px-3 py-3">{linha.competicao}</td>
+                <tr key={linha.dia}>
+                  <td className="font-bold uppercase tracking-[0.14em]">{linha.dia}</td>
+                  <td className={linha.adulto !== "-" ? "text-accent font-black" : "text-white/38"}>{linha.adulto}</td>
+                  <td className={linha.kids !== "-" ? "text-white font-semibold" : "text-white/38"}>{linha.kids}</td>
+                  <td className={linha.competicao !== "-" ? "text-secondary font-black" : "text-white/38"}>
+                    {linha.competicao}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -78,15 +80,17 @@ export function ModalidadesPage() {
         </div>
       </section>
 
-      <section className="section-shell p-6 md:p-8">
-        <p className="text-xs uppercase tracking-[0.18em] text-orange-300">Sistema de graduacao</p>
-        <h2 className="mt-2 text-3xl font-extrabold text-white">Faixas, requisitos e tempo medio</h2>
-        <div className="mt-6 grid gap-4 md:grid-cols-5">
+      <section className="section-shell px-6 py-8 md:px-8">
+        <p className="eyebrow">Sistema de graduacao</p>
+        <h2 className="display-font mt-3 text-4xl text-white md:text-5xl">Faixas e prioridades tecnicas</h2>
+        <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
           {sistemaFaixas.map((item) => (
-            <article key={item.faixa} className="card p-4">
-              <p className="display-font text-3xl text-white">{item.faixa}</p>
-              <p className="mt-1 text-sm font-semibold text-orange-200">{item.tempo}</p>
-              <p className="mt-2 text-sm text-slate-300">{item.foco}</p>
+            <article key={item.faixa} className="card px-4 py-5">
+              <span className={`inline-flex rounded-full px-3 py-1 text-xs font-black uppercase tracking-[0.18em] ${item.destaque}`}>
+                {item.faixa}
+              </span>
+              <p className="mt-4 text-sm font-bold uppercase tracking-[0.14em] text-accent">{item.tempo}</p>
+              <p className="mt-3 text-sm leading-7 text-white/68">{item.foco}</p>
             </article>
           ))}
         </div>
