@@ -34,14 +34,14 @@ export function PublicShell({ title, eyebrow, children }: PublicShellProps) {
             <div className="relative h-14 w-14 overflow-hidden rounded-[20px] border border-accent/35 bg-black/60 p-1 shadow-[0_10px_30px_rgba(251,192,45,0.12)]">
               <Image
                 src="/shield-badge.jpeg"
-                alt="Escudo da Equipe Jiu"
+                alt="Escudo da FS3"
                 fill
                 sizes="56px"
                 className="rounded-[16px] object-cover"
               />
             </div>
             <div>
-              <p className="display-font text-3xl leading-none text-white">Equipe Jiu</p>
+              <p className="display-font text-3xl leading-none text-white">FS3</p>
               <p className="text-[11px] font-extrabold uppercase tracking-[0.32em] text-accent/85">
                 BJJ For All
               </p>
@@ -129,14 +129,14 @@ export function PublicShell({ title, eyebrow, children }: PublicShellProps) {
             <div className="relative h-16 w-16 overflow-hidden rounded-[22px] border border-accent/30 bg-black/70 p-1">
               <Image
                 src="/shield-badge.jpeg"
-                alt="Escudo Equipe Jiu"
+                alt="Escudo FS3"
                 fill
                 sizes="64px"
                 className="rounded-[18px] object-cover"
               />
             </div>
             <div>
-              <p className="display-font text-3xl text-white">Equipe Jiu</p>
+              <p className="display-font text-3xl text-white">FS3</p>
               <p className="mt-1 max-w-sm text-sm leading-6 text-white/65">
                 Comunidade, disciplina e performance para quem quer treinar Brazilian Jiu-Jitsu com estrutura de time.
               </p>

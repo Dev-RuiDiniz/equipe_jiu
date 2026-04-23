@@ -48,10 +48,10 @@ export function AdmShell({
         <aside className="border-b border-accent/18 bg-black/96 p-5 xl:border-b-0 xl:border-r xl:p-7">
           <div className="flex items-center gap-4">
             <div className="relative h-16 w-16 overflow-hidden rounded-[22px] border border-accent/30 bg-black/70 p-1">
-              <Image src="/shield-badge.jpeg" alt="Escudo Equipe Jiu" fill sizes="64px" className="rounded-[18px] object-cover" />
+              <Image src="/shield-badge.jpeg" alt="Escudo FS3" fill sizes="64px" className="rounded-[18px] object-cover" />
             </div>
             <div>
-              <p className="display-font text-3xl text-white">Equipe Jiu</p>
+              <p className="display-font text-3xl text-white">FS3</p>
               <p className="text-[11px] font-black uppercase tracking-[0.3em] text-accent">Painel administrativo</p>
             </div>
           </div>

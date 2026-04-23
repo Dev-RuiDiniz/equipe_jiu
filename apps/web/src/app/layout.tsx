@@ -15,9 +15,9 @@ const body = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "Equipe Jiu | BJJ For All",
+  title: "FS3 | BJJ For All",
   description:
-    "Site oficial da Equipe Jiu com identidade premium, paginas publicas e painel administrativo completo.",
+    "Site oficial da FS3 com identidade premium, paginas publicas e painel administrativo completo.",
   icons: {
     icon: "/shield-badge.jpeg",
     shortcut: "/shield-badge.jpeg",
