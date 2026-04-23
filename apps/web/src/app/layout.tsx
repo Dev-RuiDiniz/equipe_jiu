@@ -15,9 +15,14 @@ const body = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "Equipe Jiu | Performance e Disciplina",
+  title: "Equipe Jiu | BJJ For All",
   description:
-    "Site oficial da Equipe Jiu com paginas publicas e painel administrativo em evolucao.",
+    "Site oficial da Equipe Jiu com identidade premium, paginas publicas e painel administrativo completo.",
+  icons: {
+    icon: "/shield-badge.jpeg",
+    shortcut: "/shield-badge.jpeg",
+    apple: "/shield-badge.jpeg",
+  },
 };
 
 export default function RootLayout({
