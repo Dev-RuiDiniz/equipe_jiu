@@ -160,6 +160,16 @@ export function AdmLoginPage() {
                   /adm/alunos
                 </Link>
               </li>
+              <li>
+                <Link href="/adm/contatos" className="underline decoration-accent/60 underline-offset-4">
+                  /adm/contatos
+                </Link>
+              </li>
+              <li>
+                <Link href="/adm/graduacoes" className="underline decoration-accent/60 underline-offset-4">
+                  /adm/graduacoes
+                </Link>
+              </li>
             </ul>
           </article>
         </aside>

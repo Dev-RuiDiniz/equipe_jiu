@@ -22,6 +22,8 @@ const defaultMenu: AdmMenuItem[] = [
   { label: "Aulas", href: "/adm/aulas" },
   { label: "Presencas", href: "/adm/presencas" },
   { label: "Alunos", href: "/adm/alunos" },
+  { label: "Contatos", href: "/adm/contatos" },
+  { label: "Graduacoes", href: "/adm/graduacoes" },
 ];
 
 export function AdmShell({

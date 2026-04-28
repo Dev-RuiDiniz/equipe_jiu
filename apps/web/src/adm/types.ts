@@ -1,13 +1,21 @@
 export type AdmMenuItem = {
   label: string;
-  href: "/adm" | "/adm/login" | "/adm/dashboard" | "/adm/aulas" | "/adm/presencas" | "/adm/alunos";
+  href:
+    | '/adm'
+    | '/adm/login'
+    | '/adm/dashboard'
+    | '/adm/aulas'
+    | '/adm/presencas'
+    | '/adm/alunos'
+    | '/adm/contatos'
+    | '/adm/graduacoes';
 };
 
 export type AdmSessionUser = {
   id: string;
   nome: string;
   email: string;
-  papel: "admin" | "professor";
+  papel: 'admin' | 'professor';
   ativo?: boolean;
 };
 
@@ -15,7 +23,7 @@ export type KpiCard = {
   label: string;
   value: string;
   trend: string;
-  tone?: "up" | "neutral" | "alert";
+  tone?: 'up' | 'neutral' | 'alert';
 };
 
 export type AulaRow = {
@@ -23,7 +31,7 @@ export type AulaRow = {
   modalidade: string;
   dataHora: string;
   vagas: string;
-  status: "Agendada" | "Confirmada" | "Cancelada";
+  status: 'Agendada' | 'Confirmada' | 'Cancelada';
 };
 
 export type PresencaRow = {
@@ -31,7 +39,7 @@ export type PresencaRow = {
   aula: string;
   confirmadoEm: string;
   frequencia: string;
-  status: "Presente" | "Falta" | "Atraso";
+  status: 'Presente' | 'Falta' | 'Atraso';
 };
 
 export type AlunoResumo = {
@@ -39,5 +47,5 @@ export type AlunoResumo = {
   faixa: string;
   grau: string;
   frequencia: string;
-  status: "Ativo" | "Inativo";
+  status: 'Ativo' | 'Inativo';
 };

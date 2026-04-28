@@ -21,7 +21,6 @@ export type AulaApi = {
   vagas?: number | null;
   cancelada: boolean;
   criadoEm: string;
-  atualizadoEm: string;
 };
 
 export type AlunoApi = {
@@ -35,7 +34,6 @@ export type AlunoApi = {
   fotoUrl?: string | null;
   ativo: boolean;
   criadoEm: string;
-  atualizadoEm: string;
 };
 
 export type PresencaApi = {
@@ -48,4 +46,29 @@ export type PresencaApi = {
 
 export type PresencaPorAulaApi = PresencaApi & {
   aluno: AlunoApi;
+};
+
+export type ContatoApi = {
+  id: string;
+  nome: string;
+  email: string;
+  mensagem: string;
+  interesse?: string | null;
+  lido: boolean;
+  criadoEm: string;
+};
+
+export type GraduacaoApi = {
+  id: string;
+  alunoId: string;
+  faixa: string;
+  grau: number;
+  dataGraduacao: string;
+  professorId: string;
+  observacao?: string | null;
+  professor?: {
+    id: string;
+    nome: string;
+    email: string;
+  };
 };

@@ -11,6 +11,8 @@ const styleMap: Record<string, string> = {
   Atraso: "border-accent/35 bg-accent/10 text-accent",
   Ativo: "border-emerald-300/35 bg-emerald-300/10 text-emerald-200",
   Inativo: "border-slate-400/30 bg-slate-500/10 text-slate-200",
+  Lido: "border-emerald-300/35 bg-emerald-300/10 text-emerald-200",
+  Pendente: "border-accent/35 bg-accent/10 text-accent",
 };
 
 export function AdmStatusBadge({ status }: AdmStatusBadgeProps) {
