@@ -13,16 +13,18 @@ enum Papel {
 }
 
 model Usuario {
-  id          String      @id @default(uuid()) @db.Uuid
-  nome        String      @db.VarChar(100)
-  email       String      @unique @db.VarChar(150)
-  senhaHash   String      @map("senha_hash")
-  papel       Papel
-  ativo       Boolean     @default(true)
-  criadoEm    DateTime    @default(now()) @map("criado_em")
-  ultimoLogin DateTime?   @map("ultimo_login")
-  aulas       Aula[]
-  graduacoes  Graduacao[]
+  id                  String               @id @default(uuid()) @db.Uuid
+  nome                String               @db.VarChar(100)
+  email               String               @unique @db.VarChar(150)
+  senhaHash           String               @map("senha_hash")
+  papel               Papel
+  ativo               Boolean              @default(true)
+  criadoEm            DateTime             @default(now()) @map("criado_em")
+  ultimoLogin         DateTime?            @map("ultimo_login")
+  aulas               Aula[]
+  graduacoes          Graduacao[]
+  refreshTokens       RefreshToken[]
+  passwordResetTokens PasswordResetToken[]
 
   @@map("usuarios")
 }
@@ -93,14 +95,41 @@ model Graduacao {
 }
 
 model Contato {
-  id       String   @id @default(uuid()) @db.Uuid
-  nome     String   @db.VarChar(100)
-  email    String   @db.VarChar(150)
-  mensagem String
-  interesse String? @db.VarChar(50)
-  lido     Boolean  @default(false)
-  criadoEm DateTime @default(now()) @map("criado_em")
+  id        String   @id @default(uuid()) @db.Uuid
+  nome      String   @db.VarChar(100)
+  email     String   @db.VarChar(150)
+  mensagem  String
+  interesse String?  @db.VarChar(50)
+  lido      Boolean  @default(false)
+  criadoEm  DateTime @default(now()) @map("criado_em")
 
   @@index([lido, criadoEm(sort: Desc)])
   @@map("contatos")
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid()) @db.Uuid
+  tokenId   String    @unique @map("token_id")
+  usuarioId String    @map("usuario_id") @db.Uuid
+  expiresEm DateTime  @map("expires_em")
+  revogadoEm DateTime? @map("revogado_em")
+  criadoEm  DateTime  @default(now()) @map("criado_em")
+  usuario   Usuario   @relation(fields: [usuarioId], references: [id])
+
+  @@index([usuarioId, expiresEm])
+  @@index([usuarioId, revogadoEm])
+  @@map("refresh_tokens")
+}
+
+model PasswordResetToken {
+  id         String    @id @default(uuid()) @db.Uuid
+  usuarioId  String    @map("usuario_id") @db.Uuid
+  tokenHash  String    @unique @map("token_hash")
+  expiresEm  DateTime  @map("expires_em")
+  usadoEm    DateTime? @map("usado_em")
+  criadoEm   DateTime  @default(now()) @map("criado_em")
+  usuario    Usuario   @relation(fields: [usuarioId], references: [id])
+
+  @@index([usuarioId, expiresEm])
+  @@map("password_reset_tokens")
 }

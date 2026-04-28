@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@n
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import bcrypt from 'bcryptjs';
-import { randomBytes } from 'crypto';
+import { createHash, randomBytes, randomUUID } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
@@ -12,6 +12,7 @@ export type JwtPayload = {
   sub: string;
   email: string;
   papel: 'admin' | 'professor';
+  tokenId?: string;
 };
 
 @Injectable()
@@ -19,8 +20,6 @@ export class AuthService {
   private readonly rateWindowMs = 60 * 1000;
   private readonly loginRateMap = new Map<string, { count: number; resetAt: number }>();
   private readonly recoveryRateMap = new Map<string, { count: number; resetAt: number }>();
-  private readonly resetTokens = new Map<string, { userId: string; expiresAt: number }>();
-
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
@@ -67,6 +66,34 @@ export class AuthService {
     return this.configService.get<string>('JWT_SECRET', 'change_me');
   }
 
+  private hashToken(token: string) {
+    return createHash('sha256').update(token).digest('hex');
+  }
+
+  private parseDurationToMs(raw: string, fallbackMs: number): number {
+    const value = raw.trim();
+    const match = /^(\d+)(ms|s|m|h|d)?$/i.exec(value);
+    if (!match) {
+      return fallbackMs;
+    }
+
+    const amount = Number(match[1]);
+    const unit = (match[2] ?? 'ms').toLowerCase();
+    const unitMap: Record<string, number> = {
+      ms: 1,
+      s: 1000,
+      m: 60 * 1000,
+      h: 60 * 60 * 1000,
+      d: 24 * 60 * 60 * 1000,
+    };
+
+    return amount * (unitMap[unit] ?? 1);
+  }
+
+  private getRefreshTtlMs() {
+    return this.parseDurationToMs(this.getRefreshTtl(), 7 * 24 * 60 * 60 * 1000);
+  }
+
   private buildPayload(user: { id: string; email: string; papel: 'admin' | 'professor' }): JwtPayload {
     return {
       sub: user.id,
@@ -75,7 +102,7 @@ export class AuthService {
     };
   }
 
-  private async signTokens(payload: JwtPayload) {
+  private async signTokens(payload: JwtPayload, refreshTokenId: string) {
     const secret = this.getSecret();
 
     const [accessToken, refreshToken] = await Promise.all([
@@ -86,10 +113,26 @@ export class AuthService {
       this.jwtService.signAsync(payload, {
         secret,
         expiresIn: this.getRefreshTtl() as never,
+        jwtid: refreshTokenId,
       }),
     ]);
 
     return { accessToken, refreshToken };
+  }
+
+  private async issueSessionTokens(user: { id: string; email: string; papel: 'admin' | 'professor' }) {
+    const refreshTokenId = randomUUID();
+    const tokens = await this.signTokens(this.buildPayload(user), refreshTokenId);
+
+    await this.prisma.refreshToken.create({
+      data: {
+        tokenId: refreshTokenId,
+        usuarioId: user.id,
+        expiresEm: new Date(Date.now() + this.getRefreshTtlMs()),
+      },
+    });
+
+    return tokens;
   }
 
   async login(dto: LoginDto) {
@@ -112,8 +155,7 @@ export class AuthService {
       data: { ultimoLogin: new Date() },
     });
 
-    const payload = this.buildPayload({ id: user.id, email: user.email, papel: user.papel });
-    const tokens = await this.signTokens(payload);
+    const tokens = await this.issueSessionTokens({ id: user.id, email: user.email, papel: user.papel });
 
     return {
       user: {
@@ -131,6 +173,19 @@ export class AuthService {
       secret: this.getSecret(),
     });
 
+    if (!payload.tokenId) {
+      throw new UnauthorizedException('Sessao invalida');
+    }
+
+    const tokenRecord = await this.prisma.refreshToken.findUnique({
+      where: { tokenId: payload.tokenId },
+      select: { tokenId: true, usuarioId: true, expiresEm: true, revogadoEm: true },
+    });
+
+    if (!tokenRecord || tokenRecord.revogadoEm || tokenRecord.expiresEm < new Date()) {
+      throw new UnauthorizedException('Sessao invalida');
+    }
+
     const user = await this.prisma.usuario.findUnique({
       where: { id: payload.sub },
       select: {
@@ -146,8 +201,12 @@ export class AuthService {
       throw new UnauthorizedException('Sessao invalida');
     }
 
-    const tokens = await this.signTokens({
-      sub: user.id,
+    await this.prisma.refreshToken.update({
+      where: { tokenId: tokenRecord.tokenId },
+      data: { revogadoEm: new Date() },
+    });
+    const tokens = await this.issueSessionTokens({
+      id: user.id,
       email: user.email,
       papel: user.papel,
     });
@@ -171,6 +230,31 @@ export class AuthService {
     this.enforceRateLimit(this.recoveryRateMap, this.getRateKey(email, ip), 3);
   }
 
+  async revokeRefreshToken(refreshToken: string) {
+    let payload: JwtPayload;
+    try {
+      payload = await this.jwtService.verifyAsync<JwtPayload>(refreshToken, {
+        secret: this.getSecret(),
+      });
+    } catch {
+      return;
+    }
+
+    if (!payload.tokenId) {
+      return;
+    }
+
+    await this.prisma.refreshToken.updateMany({
+      where: {
+        tokenId: payload.tokenId,
+        revogadoEm: null,
+      },
+      data: {
+        revogadoEm: new Date(),
+      },
+    });
+  }
+
   async forgotPassword(dto: ForgotPasswordDto) {
     const user = await this.prisma.usuario.findUnique({
       where: { email: dto.email },
@@ -179,9 +263,25 @@ export class AuthService {
 
     if (user?.ativo) {
       const token = randomBytes(24).toString('hex');
-      this.resetTokens.set(token, {
-        userId: user.id,
-        expiresAt: Date.now() + 15 * 60 * 1000,
+      await this.prisma.passwordResetToken.updateMany({
+        where: {
+          usuarioId: user.id,
+          usadoEm: null,
+          expiresEm: {
+            gt: new Date(),
+          },
+        },
+        data: {
+          usadoEm: new Date(),
+        },
+      });
+
+      await this.prisma.passwordResetToken.create({
+        data: {
+          usuarioId: user.id,
+          tokenHash: this.hashToken(token),
+          expiresEm: new Date(Date.now() + 15 * 60 * 1000),
+        },
       });
     }
 
@@ -191,20 +291,33 @@ export class AuthService {
   }
 
   async resetPassword(dto: ResetPasswordDto) {
-    const tokenData = this.resetTokens.get(dto.token);
+    const tokenHash = this.hashToken(dto.token);
+    const tokenData = await this.prisma.passwordResetToken.findUnique({
+      where: { tokenHash },
+      select: {
+        id: true,
+        usuarioId: true,
+        expiresEm: true,
+        usadoEm: true,
+      },
+    });
 
-    if (!tokenData || tokenData.expiresAt < Date.now()) {
+    if (!tokenData || tokenData.usadoEm || tokenData.expiresEm < new Date()) {
       throw new UnauthorizedException('Token de recuperacao invalido ou expirado');
     }
 
     const senhaHash = await bcrypt.hash(dto.novaSenha, 10);
 
-    await this.prisma.usuario.update({
-      where: { id: tokenData.userId },
-      data: { senhaHash },
-    });
-
-    this.resetTokens.delete(dto.token);
+    await this.prisma.$transaction([
+      this.prisma.usuario.update({
+        where: { id: tokenData.usuarioId },
+        data: { senhaHash },
+      }),
+      this.prisma.passwordResetToken.update({
+        where: { id: tokenData.id },
+        data: { usadoEm: new Date() },
+      }),
+    ]);
 
     return {
       message: 'Senha atualizada com sucesso.',

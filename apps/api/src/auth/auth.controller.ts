@@ -6,10 +6,9 @@ import { LoginDto } from './dto/login.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
-const cookieOptions = {
+const baseCookieOptions = {
   httpOnly: true,
   sameSite: 'lax' as const,
-  secure: false,
   path: '/',
 };
 
@@ -28,12 +27,14 @@ export class AuthController {
     const result = await this.authService.login(dto);
 
     response.cookie('access_token', result.accessToken, {
-      ...cookieOptions,
+      ...baseCookieOptions,
+      secure: process.env.NODE_ENV === 'production',
       maxAge: 15 * 60 * 1000,
     });
 
     response.cookie('refresh_token', result.refreshToken, {
-      ...cookieOptions,
+      ...baseCookieOptions,
+      secure: process.env.NODE_ENV === 'production',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
@@ -55,11 +56,13 @@ export class AuthController {
     const result = await this.authService.refresh(refreshToken);
 
     response.cookie('access_token', result.accessToken, {
-      ...cookieOptions,
+      ...baseCookieOptions,
+      secure: process.env.NODE_ENV === 'production',
       maxAge: 15 * 60 * 1000,
     });
     response.cookie('refresh_token', result.refreshToken, {
-      ...cookieOptions,
+      ...baseCookieOptions,
+      secure: process.env.NODE_ENV === 'production',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
@@ -70,12 +73,20 @@ export class AuthController {
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  async logout(@Res({ passthrough: true }) response: Response) {
+  async logout(@Req() request: Request, @Res({ passthrough: true }) response: Response) {
+    const refreshToken = request.cookies?.refresh_token as string | undefined;
+
+    if (refreshToken) {
+      await this.authService.revokeRefreshToken(refreshToken);
+    }
+
     response.clearCookie('access_token', {
-      ...cookieOptions,
+      ...baseCookieOptions,
+      secure: process.env.NODE_ENV === 'production',
     });
     response.clearCookie('refresh_token', {
-      ...cookieOptions,
+      ...baseCookieOptions,
+      secure: process.env.NODE_ENV === 'production',
     });
 
     return {
