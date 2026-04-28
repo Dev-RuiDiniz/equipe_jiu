@@ -85,6 +85,13 @@ src/
 `-- common/
 ```
 
-## Observações de produto
-- O fluxo de `forgot-password` e `reset-password` esta funcional, mas com token de recuperacao em memoria (sem envio SMTP nesta fase).
-- Cookies de sessao usam `httpOnly` com `sameSite=lax`; em producao, habilitar `secure=true`.
+## Segurança implementada
+- Cookies de sessão `httpOnly` com `sameSite=lax`.
+- `secure=true` automaticamente em `NODE_ENV=production`.
+- Refresh tokens persistidos em `refresh_tokens` com rotação e revogação.
+- Tokens de recuperação persistidos em `password_reset_tokens` com expiração e marcação de uso.
+- Guards de autenticação/autorização por papéis.
+
+## Pendências conhecidas
+- Integração SMTP real para envio do link de recuperação de senha.
+- Auditoria de ações administrativas e trilha de alterações.

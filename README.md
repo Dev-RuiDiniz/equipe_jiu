@@ -7,27 +7,28 @@ Plataforma web do time de jiu-jitsu com:
 
 ## Estado atual do projeto
 
-### Entregue nesta fase
+### Entregue
 - Frontend publico implementado: `/`, `/sobre`, `/modalidades`, `/galeria`, `/contato`.
-- Frontend administrativo implementado: `/adm/login`, `/adm/dashboard`, `/adm/aulas`, `/adm/presencas`, `/adm/alunos`.
+- Frontend administrativo implementado: `/adm/login`, `/adm/dashboard`, `/adm/aulas`, `/adm/presencas`, `/adm/alunos`, `/adm/contatos`, `/adm/graduacoes`.
 - Integracao frontend-backend ativa para:
-  - contato publico (`POST /contatos`);
+  - contato publico (`POST /contatos`) e triagem administrativa (`GET/PATCH /contatos`);
   - login administrativo com sessao em cookie `httpOnly`;
   - dashboard com agregacoes reais;
   - listagem/cancelamento de aulas;
   - chamada e exportacao CSV de presencas;
-  - cadastro e ativacao/inativacao de alunos.
-- API NestJS modularizada com Prisma e schema inicial das 6 tabelas.
-- Seed inicial com usuario `admin` e `professor`.
+  - cadastro e ativacao/inativacao de alunos;
+  - registro/historico de graduacoes.
+- API NestJS modularizada com Prisma e schema de dados com:
+  - tabelas principais de dominio;
+  - persistencia de `refresh_tokens`;
+  - persistencia de `password_reset_tokens`.
+- CI com validacoes de `lint`, `build` e `test` para apps web/api.
 
-### O que falta para fechar 100% do escopo funcional
-- Fluxo de recuperacao de senha com envio real por e-mail (atualmente token em memoria).
-- Persistencia e revogacao robusta de refresh token (blacklist/rotacao).
-- Telas web para:
-  - gestao administrativa de `contatos` (GET/PATCH),
-  - gestao de `graduacoes` no frontend.
-- Operacoes completas de CRUD na UI de aulas e alunos (atualmente foco no fluxo principal).
-- Testes automatizados de dominio (auth, regras de presenca, cancelamento, status de aluno).
+### Pendencias para fechamento 100%
+- Integrar envio real de e-mail SMTP no fluxo de recuperacao de senha.
+- Completar CRUD de aulas no frontend (create/update/delete).
+- Completar edicao de ficha de alunos no frontend.
+- Expandir testes automatizados de dominio (auth e regras de negocio criticas).
 
 ## Stack
 - Frontend: Next.js 14 + TypeScript + Tailwind
@@ -64,7 +65,7 @@ Plataforma web do time de jiu-jitsu com:
 cd apps/api
 npm install
 npm run prisma:generate
-npm run prisma:migrate
+npm run prisma:migrate:dev
 npm run prisma:seed
 npm run start:dev
 ```
@@ -91,10 +92,11 @@ Web default: `http://localhost:3000`
 - Arquitetura frontend: [docs/arquitetura/frontend-web.md](docs/arquitetura/frontend-web.md)
 - Modelo de dados: [docs/dados/modelo-de-dados.md](docs/dados/modelo-de-dados.md)
 - Roadmap: [docs/roadmap/fases-entrega.md](docs/roadmap/fases-entrega.md)
+- Relatorio funcional: [RELATORIO_FUNCIONAL_DO_SISTEMA.md](RELATORIO_FUNCIONAL_DO_SISTEMA.md)
 
 ## Qualidade e validação
 - Web: `npm run lint` e `npm run build`
-- API: `npm run build` e `npm run test -- --runInBand`
+- API: `npm run lint`, `npm run build` e `npm run test -- --runInBand`
 
 ## Contribuição
 Siga [CONTRIBUTING.md](CONTRIBUTING.md) e o padrão Conventional Commits adotado no projeto.

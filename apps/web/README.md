@@ -20,13 +20,17 @@ Integração ativa:
 - `/adm/aulas`
 - `/adm/presencas`
 - `/adm/alunos`
+- `/adm/contatos`
+- `/adm/graduacoes`
 
 Integrações ativas:
 - login administrativo com sessão em cookie `httpOnly`;
 - dashboard com dados reais (`/dashboard/resumo` e `/dashboard/frequencia-mensal`);
 - listagem e cancelamento de aulas;
 - chamada e exportação CSV de presenças;
-- cadastro e ativação/inativação de alunos.
+- cadastro e ativação/inativação de alunos;
+- gestão administrativa de contatos (listar e marcar lido);
+- registro e histórico de graduações por aluno.
 
 ## Organização de pastas
 ```text
@@ -74,5 +78,5 @@ npm run build
 ## Pendências funcionais no frontend
 - CRUD completo de aulas (create/update/delete na UI).
 - Edição completa de ficha de alunos.
-- Telas administrativas para `contatos` e `graduacoes`.
 - Fluxo visual de reset de senha com token real.
+- Melhorias de UX para filtros avançados e operações em lote no painel.
