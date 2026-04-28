@@ -5,6 +5,7 @@ import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { LoginDto } from './dto/login.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { AuditService } from '../common/audit/audit.service';
 
 const baseCookieOptions = {
   httpOnly: true,
@@ -14,7 +15,10 @@ const baseCookieOptions = {
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly auditService: AuditService,
+  ) {}
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
@@ -25,6 +29,12 @@ export class AuthController {
   ) {
     this.authService.enforceLoginRateLimit(dto.email, request.ip);
     const result = await this.authService.login(dto);
+    await this.auditService.register({
+      usuarioId: result.user.id,
+      acao: 'LOGIN',
+      recurso: 'auth',
+      detalhes: `IP: ${request.ip ?? 'unknown'}`,
+    });
 
     response.cookie('access_token', result.accessToken, {
       ...baseCookieOptions,
@@ -80,6 +90,13 @@ export class AuthController {
       await this.authService.revokeRefreshToken(refreshToken);
     }
 
+    const user = (request as Request & { user?: { id: string } }).user;
+    await this.auditService.register({
+      usuarioId: user?.id,
+      acao: 'LOGOUT',
+      recurso: 'auth',
+    });
+
     response.clearCookie('access_token', {
       ...baseCookieOptions,
       secure: process.env.NODE_ENV === 'production',
@@ -98,12 +115,21 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async forgotPassword(@Body() dto: ForgotPasswordDto, @Req() request: Request) {
     this.authService.enforceRecoveryRateLimit(dto.email, request.ip);
+    await this.auditService.register({
+      acao: 'FORGOT_PASSWORD_REQUEST',
+      recurso: 'auth',
+      detalhes: `email: ${dto.email}`,
+    });
     return this.authService.forgotPassword(dto);
   }
 
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
   async resetPassword(@Body() dto: ResetPasswordDto) {
+    await this.auditService.register({
+      acao: 'RESET_PASSWORD',
+      recurso: 'auth',
+    });
     return this.authService.resetPassword(dto);
   }
 

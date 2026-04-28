@@ -25,8 +25,24 @@ model Usuario {
   graduacoes          Graduacao[]
   refreshTokens       RefreshToken[]
   passwordResetTokens PasswordResetToken[]
+  auditLogs           AuditLog[]
 
   @@map("usuarios")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid()) @db.Uuid
+  usuarioId  String?  @map("usuario_id") @db.Uuid
+  acao       String   @db.VarChar(80)
+  recurso    String   @db.VarChar(80)
+  recursoId  String?  @map("recurso_id")
+  detalhes   String?
+  criadoEm   DateTime @default(now()) @map("criado_em")
+  usuario    Usuario? @relation(fields: [usuarioId], references: [id])
+
+  @@index([usuarioId, criadoEm])
+  @@index([recurso, criadoEm])
+  @@map("audit_logs")
 }
 
 model Aluno {
