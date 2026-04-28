@@ -9,7 +9,7 @@ import { AdmTable } from "@/adm/components/adm-table";
 import type { AlunoApi } from "@/adm/types/api";
 import { apiClient, extractApiErrorMessage, withQuery } from "@/lib/api-client";
 
-type CreateAlunoPayload = {
+type AlunoPayload = {
   nome: string;
   cpf: string;
   dataNascimento?: string;
@@ -25,6 +25,31 @@ export function AdmAlunosPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [editingAlunoId, setEditingAlunoId] = useState<string | null>(null);
+  const [form, setForm] = useState({
+    nome: "",
+    cpf: "",
+    faixa: "Branca",
+    grau: "0",
+    telefone: "",
+    dataNascimento: "",
+    fotoUrl: "",
+    observacoes: "",
+  });
+
+  const resetForm = useCallback(() => {
+    setEditingAlunoId(null);
+    setForm({
+      nome: "",
+      cpf: "",
+      faixa: "Branca",
+      grau: "0",
+      telefone: "",
+      dataNascimento: "",
+      fotoUrl: "",
+      observacoes: "",
+    });
+  }, []);
 
   const loadAlunos = useCallback(async () => {
     setIsLoading(true);
@@ -54,29 +79,48 @@ export function AdmAlunosPage() {
       setError(null);
       setFeedback(null);
 
-      const formData = new FormData(event.currentTarget);
-      const payload: CreateAlunoPayload = {
-        nome: String(formData.get("nome") ?? "").trim(),
-        cpf: String(formData.get("cpf") ?? "").trim(),
-        faixa: String(formData.get("faixa") ?? "Branca"),
-        grau: Number(formData.get("grau") ?? 0),
-        telefone: String(formData.get("telefone") ?? "").trim() || undefined,
-        dataNascimento: String(formData.get("data_nascimento") ?? "").trim() || undefined,
+      const payload: AlunoPayload = {
+        nome: form.nome.trim(),
+        cpf: form.cpf.trim(),
+        faixa: form.faixa,
+        grau: Number(form.grau),
+        telefone: form.telefone.trim() || undefined,
+        dataNascimento: form.dataNascimento || undefined,
+        fotoUrl: form.fotoUrl.trim() || undefined,
       };
 
       try {
-        await apiClient.post<AlunoApi>("alunos", payload);
-        event.currentTarget.reset();
-        setFeedback("Aluno cadastrado com sucesso.");
+        if (editingAlunoId) {
+          await apiClient.patch<AlunoApi>(`alunos/${editingAlunoId}`, payload);
+          setFeedback("Aluno atualizado com sucesso.");
+        } else {
+          await apiClient.post<AlunoApi>("alunos", payload);
+          setFeedback("Aluno cadastrado com sucesso.");
+        }
+        resetForm();
         await loadAlunos();
       } catch (requestError) {
-        setError(extractApiErrorMessage(requestError, "Falha ao cadastrar aluno."));
+        setError(extractApiErrorMessage(requestError, "Falha ao salvar aluno."));
       } finally {
         setIsSaving(false);
       }
     },
-    [loadAlunos],
+    [editingAlunoId, form, loadAlunos, resetForm],
   );
+
+  const handleEditar = useCallback((aluno: AlunoApi) => {
+    setEditingAlunoId(aluno.id);
+    setForm({
+      nome: aluno.nome,
+      cpf: aluno.cpf,
+      faixa: aluno.faixa,
+      grau: String(aluno.grau),
+      telefone: aluno.telefone || "",
+      dataNascimento: aluno.dataNascimento ? aluno.dataNascimento.slice(0, 10) : "",
+      fotoUrl: aluno.fotoUrl || "",
+      observacoes: "",
+    });
+  }, []);
 
   const toggleStatus = useCallback(
     async (aluno: AlunoApi) => {
@@ -101,7 +145,7 @@ export function AdmAlunosPage() {
     { key: "nome", label: "Aluno" },
     { key: "faixa", label: "Faixa" },
     { key: "grau", label: "Grau" },
-    { key: "frequencia", label: "Frequencia" },
+    { key: "telefone", label: "Telefone" },
     { key: "status", label: "Status" },
     { key: "acoes", label: "Acoes" },
   ];
@@ -109,28 +153,45 @@ export function AdmAlunosPage() {
   return (
     <AdmShell
       title="Cadastro e Acompanhamento"
-      subtitle="Gestao de alunos conectada ao backend com cadastro e ativacao/inativacao."
+      subtitle="Gestao de alunos conectada ao backend com cadastro, edicao e status."
       actions={
-        <>
-          <button type="button" className="btn-outline" onClick={() => void loadAlunos()}>
-            Atualizar alunos
-          </button>
-        </>
+        <button type="button" className="btn-outline" onClick={() => void loadAlunos()}>
+          Atualizar alunos
+        </button>
       }
     >
       <section className="grid gap-5 xl:grid-cols-[1fr,1fr]">
         <article className="section-shell p-5 md:p-6">
           <p className="eyebrow">Ficha do aluno</p>
-          <h2 className="display-font mt-3 text-3xl text-white">Cadastro funcional</h2>
+          <h2 className="display-font mt-3 text-3xl text-white">{editingAlunoId ? "Editar aluno" : "Cadastro funcional"}</h2>
 
           <form className="mt-5 grid gap-4" onSubmit={(event) => void handleSubmit(event)}>
             <div className="grid gap-4 md:grid-cols-2">
-              <AdmTextInput label="Nome" name="nome" placeholder="Nome completo" required />
-              <AdmTextInput label="CPF" name="cpf" placeholder="000.000.000-00" required />
+              <AdmTextInput
+                label="Nome"
+                name="nome"
+                placeholder="Nome completo"
+                value={form.nome}
+                onChange={(event) => setForm((current) => ({ ...current, nome: event.target.value }))}
+                required
+              />
+              <AdmTextInput
+                label="CPF"
+                name="cpf"
+                placeholder="000.000.000-00"
+                value={form.cpf}
+                onChange={(event) => setForm((current) => ({ ...current, cpf: event.target.value }))}
+                required
+              />
             </div>
 
             <div className="grid gap-4 md:grid-cols-3">
-              <AdmSelectInput label="Faixa" name="faixa" defaultValue="Branca">
+              <AdmSelectInput
+                label="Faixa"
+                name="faixa"
+                value={form.faixa}
+                onChange={(event) => setForm((current) => ({ ...current, faixa: event.target.value }))}
+              >
                 <option value="Branca">Branca</option>
                 <option value="Azul">Azul</option>
                 <option value="Roxa">Roxa</option>
@@ -138,7 +199,12 @@ export function AdmAlunosPage() {
                 <option value="Preta">Preta</option>
               </AdmSelectInput>
 
-              <AdmSelectInput label="Grau" name="grau" defaultValue="0">
+              <AdmSelectInput
+                label="Grau"
+                name="grau"
+                value={form.grau}
+                onChange={(event) => setForm((current) => ({ ...current, grau: event.target.value }))}
+              >
                 <option value="0">0</option>
                 <option value="1">1</option>
                 <option value="2">2</option>
@@ -152,19 +218,48 @@ export function AdmAlunosPage() {
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
-              <AdmTextInput label="Telefone" name="telefone" placeholder="(11) 90000-0000" />
-              <AdmTextInput label="Data de nascimento" type="date" name="data_nascimento" />
+              <AdmTextInput
+                label="Telefone"
+                name="telefone"
+                placeholder="(11) 90000-0000"
+                value={form.telefone}
+                onChange={(event) => setForm((current) => ({ ...current, telefone: event.target.value }))}
+              />
+              <AdmTextInput
+                label="Data de nascimento"
+                type="date"
+                name="data_nascimento"
+                value={form.dataNascimento}
+                onChange={(event) => setForm((current) => ({ ...current, dataNascimento: event.target.value }))}
+              />
             </div>
+
+            <AdmTextInput
+              label="Foto URL"
+              name="fotoUrl"
+              placeholder="https://..."
+              value={form.fotoUrl}
+              onChange={(event) => setForm((current) => ({ ...current, fotoUrl: event.target.value }))}
+            />
 
             <AdmTextArea
               label="Observacoes"
               name="observacoes"
-              placeholder="Anotacoes internas sobre evolucao tecnica (nao persistido nesta fase)."
+              value={form.observacoes}
+              onChange={(event) => setForm((current) => ({ ...current, observacoes: event.target.value }))}
+              placeholder="Anotacoes internas sobre evolucao tecnica."
             />
 
-            <button type="submit" className="btn-primary" disabled={isSaving}>
-              {isSaving ? "Salvando..." : "Salvar aluno"}
-            </button>
+            <div className="flex flex-wrap gap-3">
+              <button type="submit" className="btn-primary" disabled={isSaving}>
+                {isSaving ? "Salvando..." : editingAlunoId ? "Atualizar aluno" : "Salvar aluno"}
+              </button>
+              {editingAlunoId ? (
+                <button type="button" className="btn-outline" onClick={resetForm}>
+                  Cancelar edicao
+                </button>
+              ) : null}
+            </div>
           </form>
           {feedback ? <p className="mt-3 text-sm text-emerald-200">{feedback}</p> : null}
           {error ? <p className="mt-3 text-sm text-rose-200">{error}</p> : null}
@@ -191,11 +286,7 @@ export function AdmAlunosPage() {
 
           <div className="mt-5">
             {isLoading ? (
-              <AdmStatePanel
-                tone="loading"
-                title="Carregando alunos"
-                message="Buscando cadastro completo para acompanhamento administrativo."
-              />
+              <AdmStatePanel tone="loading" title="Carregando alunos" message="Buscando cadastro completo." />
             ) : error ? (
               <AdmStatePanel
                 tone="error"
@@ -211,7 +302,7 @@ export function AdmAlunosPage() {
               <AdmStatePanel
                 tone="empty"
                 title="Nenhum aluno cadastrado"
-                message="Use o formulario ao lado para criar o primeiro aluno da base."
+                message="Use o formulario ao lado para criar o primeiro aluno."
               />
             ) : (
               <AdmTable
@@ -220,10 +311,17 @@ export function AdmAlunosPage() {
                   nome: <span className="font-semibold text-white">{aluno.nome}</span>,
                   faixa: aluno.faixa,
                   grau: `${aluno.grau}o`,
-                  frequencia: "--",
+                  telefone: aluno.telefone || "--",
                   status: <AdmStatusBadge status={aluno.ativo ? "Ativo" : "Inativo"} />,
                   acoes: (
                     <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        className="rounded-full border border-accent/30 px-2.5 py-1 text-xs font-semibold text-accent"
+                        onClick={() => handleEditar(aluno)}
+                      >
+                        Editar
+                      </button>
                       <button
                         type="button"
                         className="rounded-full border border-accent/30 px-2.5 py-1 text-xs font-semibold text-accent disabled:opacity-50"
