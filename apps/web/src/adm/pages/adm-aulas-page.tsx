@@ -1,11 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { AdmSelectInput, AdmTextInput } from "@/adm/components/adm-form-field";
 import { AdmShell } from "@/adm/components/adm-shell";
 import { AdmStatePanel } from "@/adm/components/adm-state-panel";
 import { AdmStatusBadge } from "@/adm/components/adm-status-badge";
 import { AdmTable } from "@/adm/components/adm-table";
+import { useAdmSession } from "@/adm/hooks/use-adm-session";
 import type { AulaApi } from "@/adm/types/api";
 import { apiClient, extractApiErrorMessage, withQuery } from "@/lib/api-client";
 
@@ -19,7 +20,14 @@ function formatDateTime(dateTime: string) {
   }).format(new Date(dateTime));
 }
 
+function toInputDateTime(dateTime: string) {
+  const date = new Date(dateTime);
+  const offsetMs = date.getTimezoneOffset() * 60000;
+  return new Date(date.getTime() - offsetMs).toISOString().slice(0, 16);
+}
+
 export function AdmAulasPage() {
+  const { user } = useAdmSession();
   const [modalidade, setModalidade] = useState("todos");
   const [status, setStatus] = useState("todos");
   const [inicio, setInicio] = useState("");
@@ -28,6 +36,16 @@ export function AdmAulasPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isMutating, setIsMutating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const [editingAulaId, setEditingAulaId] = useState<string | null>(null);
+  const [form, setForm] = useState({
+    titulo: "",
+    modalidade: "Adulto",
+    dataHora: "",
+    duracaoMin: "60",
+    vagas: "",
+    descricao: "",
+  });
 
   const loadAulas = useCallback(async () => {
     setIsLoading(true);
@@ -58,13 +76,82 @@ export function AdmAulasPage() {
     void loadAulas();
   }, [loadAulas]);
 
+  const resetForm = useCallback(() => {
+    setEditingAulaId(null);
+    setForm({
+      titulo: "",
+      modalidade: "Adulto",
+      dataHora: "",
+      duracaoMin: "60",
+      vagas: "",
+      descricao: "",
+    });
+  }, []);
+
+  const handleSubmit = useCallback(
+    async (event: FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      setIsMutating(true);
+      setError(null);
+      setFeedback(null);
+
+      if (!user?.id) {
+        setError("Sessao invalida para gerenciar aulas.");
+        setIsMutating(false);
+        return;
+      }
+
+      try {
+        const payload = {
+          titulo: form.titulo.trim(),
+          modalidade: form.modalidade,
+          dataHora: new Date(form.dataHora).toISOString(),
+          duracaoMin: Number(form.duracaoMin),
+          vagas: form.vagas ? Number(form.vagas) : undefined,
+          descricao: form.descricao.trim() || undefined,
+          professorId: user.id,
+        };
+
+        if (editingAulaId) {
+          await apiClient.patch<AulaApi>(`aulas/${editingAulaId}`, payload);
+          setFeedback("Aula atualizada com sucesso.");
+        } else {
+          await apiClient.post<AulaApi>("aulas", payload);
+          setFeedback("Aula cadastrada com sucesso.");
+        }
+
+        resetForm();
+        await loadAulas();
+      } catch (requestError) {
+        setError(extractApiErrorMessage(requestError, "Nao foi possivel salvar a aula."));
+      } finally {
+        setIsMutating(false);
+      }
+    },
+    [editingAulaId, form, loadAulas, resetForm, user],
+  );
+
+  const handleEditar = useCallback((aula: AulaApi) => {
+    setEditingAulaId(aula.id);
+    setForm({
+      titulo: aula.titulo,
+      modalidade: aula.modalidade,
+      dataHora: toInputDateTime(aula.dataHora),
+      duracaoMin: String(aula.duracaoMin),
+      vagas: aula.vagas ? String(aula.vagas) : "",
+      descricao: aula.descricao || "",
+    });
+  }, []);
+
   const handleCancelar = useCallback(
     async (aulaId: string) => {
       setIsMutating(true);
       setError(null);
+      setFeedback(null);
 
       try {
         await apiClient.patch<AulaApi>(`aulas/${aulaId}/cancelar`, {});
+        setFeedback("Aula cancelada com sucesso.");
         await loadAulas();
       } catch (requestError) {
         setError(extractApiErrorMessage(requestError, "Nao foi possivel cancelar a aula selecionada."));
@@ -73,6 +160,28 @@ export function AdmAulasPage() {
       }
     },
     [loadAulas],
+  );
+
+  const handleExcluir = useCallback(
+    async (aulaId: string) => {
+      setIsMutating(true);
+      setError(null);
+      setFeedback(null);
+
+      try {
+        await apiClient.delete<{ id: string }>(`aulas/${aulaId}`);
+        setFeedback("Aula excluida com sucesso.");
+        if (editingAulaId === aulaId) {
+          resetForm();
+        }
+        await loadAulas();
+      } catch (requestError) {
+        setError(extractApiErrorMessage(requestError, "Nao foi possivel excluir a aula selecionada."));
+      } finally {
+        setIsMutating(false);
+      }
+    },
+    [editingAulaId, loadAulas, resetForm],
   );
 
   const aulasOrdenadas = useMemo(
@@ -92,16 +201,88 @@ export function AdmAulasPage() {
   return (
     <AdmShell
       title="Controle de Aulas"
-      subtitle="Grade semanal conectada ao backend com filtros por modalidade, data e status."
+      subtitle="Grade semanal conectada ao backend com CRUD completo, filtros e status."
       actions={
-        <>
-          <button type="button" className="btn-outline" onClick={() => void loadAulas()}>
-            Atualizar agenda
-          </button>
-        </>
+        <button type="button" className="btn-outline" onClick={() => void loadAulas()}>
+          Atualizar agenda
+        </button>
       }
     >
       <section className="section-shell p-5 md:p-6">
+        <p className="eyebrow">Cadastro de aulas</p>
+        <h2 className="display-font mt-3 text-3xl text-white">{editingAulaId ? "Editar aula" : "Nova aula"}</h2>
+        <form className="mt-5 grid gap-4" onSubmit={(event) => void handleSubmit(event)}>
+          <div className="grid gap-4 md:grid-cols-2">
+            <AdmTextInput
+              label="Titulo"
+              name="titulo"
+              value={form.titulo}
+              onChange={(event) => setForm((current) => ({ ...current, titulo: event.target.value }))}
+              required
+            />
+            <AdmSelectInput
+              label="Modalidade"
+              name="modalidade"
+              value={form.modalidade}
+              onChange={(event) => setForm((current) => ({ ...current, modalidade: event.target.value }))}
+            >
+              <option value="Adulto">Adulto</option>
+              <option value="Kids">Kids</option>
+              <option value="Competicao">Competicao</option>
+            </AdmSelectInput>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            <AdmTextInput
+              label="Data e hora"
+              type="datetime-local"
+              name="dataHora"
+              value={form.dataHora}
+              onChange={(event) => setForm((current) => ({ ...current, dataHora: event.target.value }))}
+              required
+            />
+            <AdmTextInput
+              label="Duracao (min)"
+              type="number"
+              min={1}
+              name="duracaoMin"
+              value={form.duracaoMin}
+              onChange={(event) => setForm((current) => ({ ...current, duracaoMin: event.target.value }))}
+              required
+            />
+            <AdmTextInput
+              label="Vagas"
+              type="number"
+              min={1}
+              name="vagas"
+              value={form.vagas}
+              onChange={(event) => setForm((current) => ({ ...current, vagas: event.target.value }))}
+            />
+          </div>
+
+          <AdmTextInput
+            label="Descricao"
+            name="descricao"
+            value={form.descricao}
+            onChange={(event) => setForm((current) => ({ ...current, descricao: event.target.value }))}
+          />
+
+          <div className="flex flex-wrap gap-3">
+            <button type="submit" className="btn-primary" disabled={isMutating}>
+              {isMutating ? "Salvando..." : editingAulaId ? "Atualizar aula" : "Cadastrar aula"}
+            </button>
+            {editingAulaId ? (
+              <button type="button" className="btn-outline" onClick={resetForm}>
+                Cancelar edicao
+              </button>
+            ) : null}
+          </div>
+        </form>
+        {feedback ? <p className="mt-3 text-sm text-emerald-200">{feedback}</p> : null}
+        {error ? <p className="mt-3 text-sm text-rose-200">{error}</p> : null}
+      </section>
+
+      <section className="mt-6 section-shell p-5 md:p-6">
         <p className="eyebrow">Filtros rapidos</p>
         <div className="mt-4 grid gap-4 md:grid-cols-4">
           <AdmSelectInput
@@ -134,11 +315,7 @@ export function AdmAulasPage() {
 
         <div className="mt-5">
           {isLoading ? (
-            <AdmStatePanel
-              tone="loading"
-              title="Buscando aulas"
-              message="Carregando dados reais da grade para a equipe administrativa."
-            />
+            <AdmStatePanel tone="loading" title="Buscando aulas" message="Carregando dados reais da grade." />
           ) : error ? (
             <AdmStatePanel
               tone="error"
@@ -151,11 +328,7 @@ export function AdmAulasPage() {
               }
             />
           ) : aulasOrdenadas.length === 0 ? (
-            <AdmStatePanel
-              tone="empty"
-              title="Nenhuma aula encontrada"
-              message="Ajuste os filtros ou cadastre uma nova aula para preencher a grade."
-            />
+            <AdmStatePanel tone="empty" title="Nenhuma aula encontrada" message="Ajuste os filtros ou cadastre uma nova aula." />
           ) : (
             <AdmTable
               columns={columns}
@@ -169,11 +342,26 @@ export function AdmAulasPage() {
                   <div className="flex flex-wrap gap-2">
                     <button
                       type="button"
+                      className="rounded-full border border-accent/30 px-2.5 py-1 text-xs font-semibold text-accent"
+                      onClick={() => handleEditar(aula)}
+                    >
+                      Editar
+                    </button>
+                    <button
+                      type="button"
                       className="rounded-full border border-secondary/40 px-2.5 py-1 text-xs font-semibold text-rose-100 disabled:opacity-50"
                       onClick={() => void handleCancelar(aula.id)}
                       disabled={aula.cancelada || isMutating}
                     >
-                      {aula.cancelada ? "Ja cancelada" : isMutating ? "Salvando..." : "Cancelar"}
+                      Cancelar
+                    </button>
+                    <button
+                      type="button"
+                      className="rounded-full border border-white/30 px-2.5 py-1 text-xs font-semibold text-white disabled:opacity-50"
+                      onClick={() => void handleExcluir(aula.id)}
+                      disabled={isMutating}
+                    >
+                      Excluir
                     </button>
                   </div>
                 ),
