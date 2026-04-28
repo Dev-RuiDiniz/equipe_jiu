@@ -7,6 +7,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { MailService } from '../mail/mail.service';
 
 export type JwtPayload = {
   sub: string;
@@ -24,6 +25,7 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly mailService: MailService,
   ) {}
 
   private getRateKey(email: string, ip?: string) {
@@ -283,6 +285,7 @@ export class AuthService {
           expiresEm: new Date(Date.now() + 15 * 60 * 1000),
         },
       });
+      await this.mailService.sendResetPasswordEmail(dto.email, token);
     }
 
     return {
